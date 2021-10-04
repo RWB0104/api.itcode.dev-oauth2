@@ -1,19 +1,18 @@
 package oauth.account.process;
 
 import com.github.scribejava.core.model.OAuth2AccessToken;
-import com.google.gson.JsonObject;
 import global.bean.ResponseBean;
 import global.module.Process;
-import oauth.account.module.AuthModule;
-
-import javax.management.BadAttributeValueExpException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
-import java.net.URI;
+import oauth.account.module.AuthModule;
+
+import javax.management.BadAttributeValueExpException;
+import java.util.Objects;
 
 /**
  * 계정 GET 프로세스 클래스
@@ -47,14 +46,14 @@ public class AccountPostProcess extends Process
 	{
 		Response response;
 		
-		ResponseBean<JsonObject> responseBean = new ResponseBean<>();
+		ResponseBean<String> responseBean = new ResponseBean<>();
 		
 		HttpSession session = request.getSession();
 		
 		// 로그인 응답 생성 시도
 		try
 		{
-			String sessionState = session.getAttribute("state").toString();
+			Object sessionState = Objects.requireNonNull(session.getAttribute("state"));
 			
 			// 고유 상태값이 일치하지 않을 경우
 			if (!state.equals(sessionState))
@@ -69,19 +68,16 @@ public class AccountPostProcess extends Process
 			String accessToken = oAuth2AccessToken.getAccessToken();
 			String refreshToken = oAuth2AccessToken.getRefreshToken();
 			
-			// 접근 토큰 쿠키
-			Cookie accessCookie = new Cookie("access", accessToken);
-			accessCookie.setHttpOnly(true);
+			NewCookie accessCookie = new NewCookie("access", accessToken, "/oauth2", ".itcode.dev", "access token", -1, true, true);
+			NewCookie refreshCookie = new NewCookie("refresh", refreshToken, "/oauth2", ".itcode.dev", "refresh token", 86400 * 7 + 3600 * 9, true, true);
+			NewCookie platformCookie = new NewCookie("platform", platform, "/oauth2", ".itcode.dev", "platform token", 86400 * 7 + 3600 * 9, true, true);
 			
-			// 갱신 토큰 쿠키
-			Cookie refreshCookie = new Cookie("refresh", refreshToken);
-			refreshCookie.setHttpOnly(true);
-			refreshCookie.setMaxAge(3600 * 24 * 7);
+			responseBean.setFlag(true);
+			responseBean.setTitle("success");
+			responseBean.setMessage("authorized success");
+			responseBean.setBody(null);
 			
-			this.response.addCookie(accessCookie);
-			this.response.addCookie(refreshCookie);
-			
-			response = Response.temporaryRedirect(URI.create("https://project.itcode.dev/oauth2/home")).build();
+			response = Response.ok(responseBean, MediaType.APPLICATION_JSON).cookie(accessCookie, refreshCookie, platformCookie).build();
 		}
 		
 		// 예외
@@ -107,34 +103,29 @@ public class AccountPostProcess extends Process
 	}
 	
 	/**
-	 * 사용자 정보 응답 반환 메서드
-	 *
-	 * @param platform: [String] 플랫폼
-	 * @param access: [String] 접근 토큰
+	 * 로그아웃 응답 반환 메서드
 	 *
 	 * @return [Response] 응답 객체
 	 */
-	public Response postUserInfoResponse(String platform, String access)
+	public Response postLogoutResponse()
 	{
 		Response response;
 		
-		ResponseBean<JsonObject> responseBean = new ResponseBean<>();
+		ResponseBean<String> responseBean = new ResponseBean<>();
 		
-		// 사용자 정보 응답 생성 시도
+		// 로그아웃 응답 생성 시도
 		try
 		{
-			AuthModule authModule = getAuthModule(platform);
-			
-			com.github.scribejava.core.model.Response userInfoResponse = authModule.getUserInfo(access);
-			
-			System.out.println(userInfoResponse.getMessage());
+			NewCookie accessCookie = new NewCookie("access", null, "/oauth2", ".itcode.dev", "access token", 0, true, true);
+			NewCookie refreshCookie = new NewCookie("refresh", null, "/oauth2", ".itcode.dev", "refresh token", 0, true, true);
+			NewCookie platformCookie = new NewCookie("platform", null, "/oauth2", ".itcode.dev", "platform token", 0, true, true);
 			
 			responseBean.setFlag(true);
 			responseBean.setTitle("success");
-			responseBean.setMessage("user info response success");
+			responseBean.setMessage("logout success");
 			responseBean.setBody(null);
 			
-			response = Response.ok(responseBean, MediaType.APPLICATION_JSON).build();
+			response = Response.ok(responseBean, MediaType.APPLICATION_JSON).cookie(accessCookie, refreshCookie, platformCookie).build();
 		}
 		
 		// 예외

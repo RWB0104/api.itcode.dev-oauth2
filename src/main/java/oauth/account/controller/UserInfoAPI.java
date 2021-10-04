@@ -1,13 +1,11 @@
 package oauth.account.controller;
 
 import global.module.API;
-import oauth.account.process.AccountPostProcess;
-
+import jakarta.ws.rs.CookieParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
+import oauth.account.process.AccountGetProcess;
 
 /**
  * 사용자 정보 API 클래스
@@ -22,14 +20,14 @@ public class UserInfoAPI extends API
 	 * 사용자 정보 응답 메서드
 	 *
 	 * @param platform: [String] 플랫폼
-	 * @param code: [String] 인증 코드
+	 * @param access: [String] 접근 토큰
 	 *
 	 * @return [Response] 응답 객체
 	 */
 	@GET
-	@Path("/{platform}")
-	public Response userInfoResponse(@PathParam("platform") String platform, @QueryParam("code") String code)
+	@Path("")
+	public Response userInfoResponse(@CookieParam("platform") String platform, @CookieParam("access") String access)
 	{
-		return new AccountPostProcess(request, response).postUserInfoResponse(platform, code);
+		return new AccountGetProcess(request, response).getUserInfoResponse(platform, access);
 	}
 }

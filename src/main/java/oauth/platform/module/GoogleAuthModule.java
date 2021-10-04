@@ -1,8 +1,12 @@
-package oauth.google.module;
+package oauth.platform.module;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.builder.ServiceBuilderOAuth20;
 import oauth.account.bean.ApiKeyBean;
+import oauth.account.bean.UserInfoBean;
 import oauth.account.module.AuthModule;
 
 /**
@@ -13,13 +17,15 @@ import oauth.account.module.AuthModule;
  */
 public class GoogleAuthModule extends AuthModule
 {
+	private static final String MODULE_NAME = "google";
+	
 	private static final String API_KEY;
 	private static final String SECRET_KEY;
 	private static final String CALLBACK_URL;
 	
 	static
 	{
-		ApiKeyBean apiKeyBean = getApiKeyBean("google");
+		ApiKeyBean apiKeyBean = getApiKeyBean(MODULE_NAME);
 		
 		API_KEY = apiKeyBean.getApi();
 		SECRET_KEY = apiKeyBean.getSecret();
@@ -28,16 +34,17 @@ public class GoogleAuthModule extends AuthModule
 	
 	private static final ServiceBuilderOAuth20 SERVICE_BUILDER = new ServiceBuilder(API_KEY).apiSecret(SECRET_KEY).callback(CALLBACK_URL).defaultScope("https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile");
 	
-	private static final GoogleAuthModule INSTANCE = new GoogleAuthModule(SERVICE_BUILDER);
+	private static final GoogleAuthModule INSTANCE = new GoogleAuthModule(SERVICE_BUILDER, MODULE_NAME);
 	
 	/**
 	 * 생성자 메서드
 	 *
 	 * @param serviceBuilder: [ServiceBuilderOAuth20] API 서비스 빌더
+	 * @param unique: [String] 유니크 값
 	 */
-	private GoogleAuthModule(ServiceBuilderOAuth20 serviceBuilder)
+	private GoogleAuthModule(ServiceBuilderOAuth20 serviceBuilder, String unique)
 	{
-		super(serviceBuilder);
+		super(serviceBuilder, unique);
 	}
 	
 	/**
@@ -48,6 +55,30 @@ public class GoogleAuthModule extends AuthModule
 	public static GoogleAuthModule getInstance()
 	{
 		return INSTANCE;
+	}
+	
+	/**
+	 * 유저 정보 객체 반환 메서드
+	 *
+	 * @param body: [String] OAuth 응답 내용
+	 *
+	 * @return [UserInfoBean] 유저 정보 객체
+	 *
+	 * @throws JsonProcessingException JSON 파싱 예외
+	 */
+	@Override
+	public UserInfoBean getUserInfoBean(String body) throws JsonProcessingException
+	{
+		ObjectMapper mapper = new ObjectMapper();
+		
+		JsonNode node = mapper.readTree(body);
+		
+		String id = node.get("id").textValue();
+		String email = node.get("email").textValue();
+		String name = node.get("name").textValue();
+		String picture = node.get("picture").textValue();
+		
+		return new UserInfoBean(id, email, name, picture, MODULE_NAME);
 	}
 	
 	/**

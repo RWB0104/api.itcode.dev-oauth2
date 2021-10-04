@@ -3,8 +3,10 @@ package global.module;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import oauth.account.module.AuthModule;
-import oauth.google.module.GoogleAuthModule;
-import oauth.naver.module.NaverAuthModule;
+import oauth.platform.module.GithubAuthModule;
+import oauth.platform.module.GoogleAuthModule;
+import oauth.platform.module.KakaoAuthModule;
+import oauth.platform.module.NaverAuthModule;
 
 /**
  * 프로세스 추상 클래스
@@ -44,6 +46,8 @@ abstract public class Process
 				{
 					case "naver" -> NaverAuthModule.getInstance();
 					case "google" -> GoogleAuthModule.getInstance();
+					case "kakao" -> KakaoAuthModule.getInstance();
+					case "github" -> GithubAuthModule.getInstance();
 					default -> throw new NullPointerException(Util.builder("'", platform, "' is invalid platform"));
 				};
 	}

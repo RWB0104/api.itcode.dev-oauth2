@@ -1,14 +1,18 @@
 package oauth.account.module;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.scribejava.core.builder.ServiceBuilderOAuth20;
 import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
+import com.github.scribejava.core.oauth.AccessTokenRequestParams;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import global.module.Util;
+import lombok.Getter;
 import oauth.account.bean.ApiKeyBean;
+import oauth.account.bean.UserInfoBean;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -24,12 +28,25 @@ abstract public class AuthModule extends DefaultApi20
 {
 	protected OAuth20Service service;
 	
-	protected AuthModule(ServiceBuilderOAuth20 serviceBuilder)
+	@Getter
+	protected String unique;
+	
+	/**
+	 * 생성자 메서드
+	 *
+	 * @param serviceBuilder: [ServiceBuilderOAuth20] API 서비스 빌더
+	 * @param unique: [String] 유니크 키
+	 */
+	protected AuthModule(ServiceBuilderOAuth20 serviceBuilder, String unique)
 	{
 		service = serviceBuilder.build(this);
+		
+		this.unique = unique;
 	}
 	
 	abstract protected String getUserInfoEndPoint();
+	
+	abstract public UserInfoBean getUserInfoBean(String body) throws JsonProcessingException;
 	
 	/**
 	 * 인증 URL 반환 메서드
@@ -44,7 +61,7 @@ abstract public class AuthModule extends DefaultApi20
 	}
 	
 	/**
-	 * 접근 토큰 반환 함수
+	 * 접근 토큰 반환 메서드
 	 *
 	 * @param code: [String] 인증 코드
 	 *
@@ -60,7 +77,23 @@ abstract public class AuthModule extends DefaultApi20
 	}
 	
 	/**
-	 * 접근 토큰 갱신 및 반환 함수
+	 * 접근 토큰 반환 메서드
+	 *
+	 * @param params: [AccessTokenRequestParams] AccessTokenRequestParams 객체
+	 *
+	 * @return [OAuth2AccessToken] 접근 토큰
+	 *
+	 * @throws IOException 데이터 입출력 예외
+	 * @throws ExecutionException 실행 예외
+	 * @throws InterruptedException 인터럽트 예외
+	 */
+	public OAuth2AccessToken getAccessToken(AccessTokenRequestParams params) throws IOException, ExecutionException, InterruptedException
+	{
+		return service.getAccessToken(params);
+	}
+	
+	/**
+	 * 접근 토큰 갱신 및 반환 메서드
 	 *
 	 * @param refresh: [String] 리프레쉬 코드
 	 *
@@ -75,6 +108,17 @@ abstract public class AuthModule extends DefaultApi20
 		return service.refreshAccessToken(refresh);
 	}
 	
+	/**
+	 * 사용자 정보 응답 반환 메서드
+	 *
+	 * @param access: [String] 접근 토큰
+	 *
+	 * @return [Response] 사용자 정보 응답
+	 *
+	 * @throws IOException 데이터 입출력 예외
+	 * @throws ExecutionException 실행 예외
+	 * @throws InterruptedException 인터럽트 예외
+	 */
 	public Response getUserInfo(String access) throws IOException, ExecutionException, InterruptedException
 	{
 		OAuthRequest oAuthRequest = new OAuthRequest(Verb.GET, getUserInfoEndPoint());

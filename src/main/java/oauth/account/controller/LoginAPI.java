@@ -1,15 +1,14 @@
 package oauth.account.controller;
 
 import global.module.API;
-import oauth.account.process.AccountGetProcess;
-import oauth.account.process.AccountPostProcess;
-
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
+import oauth.account.bean.LoginResponseBean;
+import oauth.account.process.AccountGetProcess;
+import oauth.account.process.AccountPostProcess;
 
 /**
  * 로그인 API 클래스
@@ -38,15 +37,14 @@ public class LoginAPI extends API
 	 * 로그인 응답 메서드
 	 *
 	 * @param platform: [String] 플랫폼
-	 * @param code: [String] 인증 코드
-	 * @param state: [String] 고유 상태값
+	 * @param loginResponseBean: [LoginResponseBean] LoginResponseBean 객체
 	 *
 	 * @return [Response] 응답 객체
 	 */
 	@POST
 	@Path("/{platform}")
-	public Response loginResponse(@PathParam("platform") String platform, @QueryParam("code") String code, @QueryParam("state") String state)
+	public Response loginResponse(@PathParam("platform") String platform, LoginResponseBean loginResponseBean)
 	{
-		return new AccountPostProcess(request, response).postLoginResponse(platform, code, state);
+		return new AccountPostProcess(request, response).postLoginResponse(platform, loginResponseBean.getCode(), loginResponseBean.getState());
 	}
 }
