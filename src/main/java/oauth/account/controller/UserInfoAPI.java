@@ -19,15 +19,14 @@ public class UserInfoAPI extends API
 	/**
 	 * 사용자 정보 응답 메서드
 	 *
-	 * @param platform: [String] 플랫폼
 	 * @param access: [String] 접근 토큰
 	 *
 	 * @return [Response] 응답 객체
 	 */
 	@GET
 	@Path("")
-	public Response userInfoResponse(@CookieParam("platform") String platform, @CookieParam("access") String access)
+	public Response userInfoResponse(@CookieParam("access") String access)
 	{
-		return new AccountGetProcess(request, response).getUserInfoResponse(platform, access);
+		return new AccountGetProcess(request, response).getUserInfoResponse(access);
 	}
 }

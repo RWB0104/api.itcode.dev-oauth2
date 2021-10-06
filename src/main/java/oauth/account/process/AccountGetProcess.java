@@ -1,10 +1,12 @@
 package oauth.account.process;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.scribejava.core.model.OAuthResponseException;
 import global.bean.ResponseBean;
+import global.module.JwtModule;
 import global.module.Process;
 import global.module.Util;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.core.MediaType;
@@ -82,12 +84,11 @@ public class AccountGetProcess extends Process
 	/**
 	 * 사용자 정보 응답 반환 메서드
 	 *
-	 * @param platform: [String] 플랫폼
 	 * @param access: [String] 접근 토큰
 	 *
 	 * @return [Response] 응답 객체
 	 */
-	public Response getUserInfoResponse(String platform, String access)
+	public Response getUserInfoResponse(String access)
 	{
 		Response response;
 		
@@ -96,17 +97,20 @@ public class AccountGetProcess extends Process
 		// 사용자 정보 응답 생성 시도
 		try
 		{
+			Jws<Claims> jws = JwtModule.openJwt(access);
+			
+			String accessToken = jws.getBody().get("access", String.class);
+			String platform = jws.getBody().get("platform", String.class);
+			
 			AuthModule authModule = getAuthModule(platform);
 			
-			com.github.scribejava.core.model.Response userInfoResponse = authModule.getUserInfo(access);
+			com.github.scribejava.core.model.Response userInfoResponse = authModule.getUserInfo(accessToken);
 			
 			// 응답이 정상적이지 않을 경우
 			if (userInfoResponse.getCode() != 200)
 			{
 				throw new OAuthResponseException(userInfoResponse);
 			}
-			
-			System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(userInfoResponse.getBody()));
 			
 			responseBean.setFlag(true);
 			responseBean.setTitle("success");

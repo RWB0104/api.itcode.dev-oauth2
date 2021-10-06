@@ -126,8 +126,6 @@ public class GithubAuthModule extends AuthModule
 		
 		ObjectMapper mapper = new ObjectMapper();
 		
-		System.out.println(responseBuilder.toString());
-		
 		JsonNode node = mapper.readTree(responseBuilder.toString());
 		
 		String access_token = node.get("access_token").textValue();

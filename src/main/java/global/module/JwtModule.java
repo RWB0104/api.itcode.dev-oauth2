@@ -10,7 +10,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * JWT 모듈 클래ㅐ스
@@ -53,7 +52,7 @@ public class JwtModule
 				.setExpiration(expire)
 				.setNotBefore(now)
 				.setIssuedAt(now)
-				.setId(UUID.randomUUID().toString())
+				.setId(id)
 				.signWith(SignatureAlgorithm.HS256, Base64.encode(AES_KEY.getBytes()))
 				.compact();
 	}
@@ -67,6 +66,6 @@ public class JwtModule
 	 */
 	public static Jws<Claims> openJwt(String jwt)
 	{
-		return Jwts.parser().setSigningKey(AES_KEY).parseClaimsJws(jwt);
+		return Jwts.parser().setSigningKey(Base64.encode(AES_KEY.getBytes())).parseClaimsJws(jwt);
 	}
 }

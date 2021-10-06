@@ -2,7 +2,10 @@ package oauth.account.process;
 
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import global.bean.ResponseBean;
+import global.module.JwtModule;
 import global.module.Process;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -12,7 +15,9 @@ import jakarta.ws.rs.core.Response;
 import oauth.account.module.AuthModule;
 
 import javax.management.BadAttributeValueExpException;
+import java.util.HashMap;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * 계정 GET 프로세스 클래스
@@ -68,16 +73,26 @@ public class AccountPostProcess extends Process
 			String accessToken = oAuth2AccessToken.getAccessToken();
 			String refreshToken = oAuth2AccessToken.getRefreshToken();
 			
-			NewCookie accessCookie = new NewCookie("access", accessToken, "/oauth2", ".itcode.dev", "access token", -1, true, true);
-			NewCookie refreshCookie = new NewCookie("refresh", refreshToken, "/oauth2", ".itcode.dev", "refresh token", 86400 * 7 + 3600 * 9, true, true);
-			NewCookie platformCookie = new NewCookie("platform", platform, "/oauth2", ".itcode.dev", "platform token", 86400 * 7 + 3600 * 9, true, true);
+			HashMap<String, Object> accessMap = new HashMap<>();
+			accessMap.put("access", accessToken);
+			accessMap.put("platform", platform);
+			
+			HashMap<String, Object> refreshMap = new HashMap<>();
+			refreshMap.put("refresh", refreshToken);
+			refreshMap.put("platform", platform);
+			
+			String accessJwt = JwtModule.generateJwt(state, accessMap);
+			String refreshJwt = JwtModule.generateJwt(state, refreshMap);
+			
+			NewCookie accessCookie = new NewCookie("access", accessJwt, "/oauth2", ".itcode.dev", "access token", -1, true, true);
+			NewCookie refreshCookie = new NewCookie("refresh", refreshJwt, "/oauth2", ".itcode.dev", "refresh token", 86400 * 7 + 3600 * 9, true, true);
 			
 			responseBean.setFlag(true);
 			responseBean.setTitle("success");
 			responseBean.setMessage("authorized success");
 			responseBean.setBody(null);
 			
-			response = Response.ok(responseBean, MediaType.APPLICATION_JSON).cookie(accessCookie, refreshCookie, platformCookie).build();
+			response = Response.ok(responseBean, MediaType.APPLICATION_JSON).cookie(accessCookie, refreshCookie).build();
 		}
 		
 		// 예외
@@ -103,6 +118,91 @@ public class AccountPostProcess extends Process
 	}
 	
 	/**
+	 * 자동 로그인 응답 반환 메서드
+	 *
+	 * @param refresh: [String] 리프레쉬 토큰
+	 *
+	 * @return [Response] 응답 객체
+	 */
+	public Response postAutoLoginResponse(String refresh)
+	{
+		Response response;
+		
+		ResponseBean<String> responseBean = new ResponseBean<>();
+		
+		// 자동 로그인 시도
+		try
+		{
+			// 리프레쉬 토큰이 없을 경우
+			if (refresh == null)
+			{
+				responseBean.setFlag(false);
+				responseBean.setTitle("fail");
+				responseBean.setMessage("refresh token is empty");
+				responseBean.setBody(null);
+				
+				response = Response.ok(responseBean, MediaType.APPLICATION_JSON).build();
+			}
+			
+			// 리프레쉬 토큰이 있을 경우
+			else
+			{
+				Jws<Claims> jws = JwtModule.openJwt(refresh);
+				
+				String refreshToken = jws.getBody().get("refresh", String.class);
+				String platform = jws.getBody().get("platform", String.class);
+				
+				AuthModule authModule = getAuthModule(platform);
+				
+				OAuth2AccessToken oAuth2AccessToken = authModule.getRefreshAccessToken(refreshToken);
+				
+				String accessToken = oAuth2AccessToken.getAccessToken();
+				
+				HashMap<String, Object> accessMap = new HashMap<>();
+				accessMap.put("access", accessToken);
+				accessMap.put("platform", platform);
+				
+				HashMap<String, Object> refreshMap = new HashMap<>();
+				refreshMap.put("refresh", refreshToken);
+				refreshMap.put("platform", platform);
+				
+				String uuid = UUID.randomUUID().toString();
+				
+				String accessJwt = JwtModule.generateJwt(uuid, accessMap);
+				String refreshJwt = JwtModule.generateJwt(uuid, refreshMap);
+				
+				NewCookie accessCookie = new NewCookie("access", accessJwt, "/oauth2", ".itcode.dev", "access token", -1, true, true);
+				NewCookie refreshCookie = new NewCookie("refresh", refreshJwt, "/oauth2", ".itcode.dev", "refresh token", 86400 * 7 + 3600 * 9, true, true);
+				
+				responseBean.setFlag(true);
+				responseBean.setTitle("success");
+				responseBean.setMessage("auto authorized success");
+				responseBean.setBody(null);
+				
+				response = Response.ok(responseBean, MediaType.APPLICATION_JSON).cookie(accessCookie, refreshCookie).build();
+			}
+		}
+		
+		// 예외
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			
+			responseBean.setFlag(false);
+			responseBean.setTitle(e.getClass().getSimpleName());
+			responseBean.setMessage(e.getMessage());
+			responseBean.setBody(null);
+			
+			NewCookie accessCookie = new NewCookie("access", null, "/oauth2", ".itcode.dev", "access token", 0, true, true);
+			NewCookie refreshCookie = new NewCookie("refresh", null, "/oauth2", ".itcode.dev", "refresh token", 0, true, true);
+			
+			response = Response.status(Response.Status.BAD_REQUEST).entity(responseBean).type(MediaType.APPLICATION_JSON).cookie(accessCookie, refreshCookie).build();
+		}
+		
+		return response;
+	}
+	
+	/**
 	 * 로그아웃 응답 반환 메서드
 	 *
 	 * @return [Response] 응답 객체
@@ -118,14 +218,13 @@ public class AccountPostProcess extends Process
 		{
 			NewCookie accessCookie = new NewCookie("access", null, "/oauth2", ".itcode.dev", "access token", 0, true, true);
 			NewCookie refreshCookie = new NewCookie("refresh", null, "/oauth2", ".itcode.dev", "refresh token", 0, true, true);
-			NewCookie platformCookie = new NewCookie("platform", null, "/oauth2", ".itcode.dev", "platform token", 0, true, true);
 			
 			responseBean.setFlag(true);
 			responseBean.setTitle("success");
 			responseBean.setMessage("logout success");
 			responseBean.setBody(null);
 			
-			response = Response.ok(responseBean, MediaType.APPLICATION_JSON).cookie(accessCookie, refreshCookie, platformCookie).build();
+			response = Response.ok(responseBean, MediaType.APPLICATION_JSON).cookie(accessCookie, refreshCookie).build();
 		}
 		
 		// 예외

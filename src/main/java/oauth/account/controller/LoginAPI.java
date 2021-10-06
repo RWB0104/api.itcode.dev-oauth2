@@ -1,6 +1,7 @@
 package oauth.account.controller;
 
 import global.module.API;
+import jakarta.ws.rs.CookieParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -46,5 +47,12 @@ public class LoginAPI extends API
 	public Response loginResponse(@PathParam("platform") String platform, LoginResponseBean loginResponseBean)
 	{
 		return new AccountPostProcess(request, response).postLoginResponse(platform, loginResponseBean.getCode(), loginResponseBean.getState());
+	}
+	
+	@POST
+	@Path("/auto")
+	public Response autoLoginResponse(@CookieParam("refresh") String refresh)
+	{
+		return new AccountPostProcess(request, response).postAutoLoginResponse(refresh);
 	}
 }
