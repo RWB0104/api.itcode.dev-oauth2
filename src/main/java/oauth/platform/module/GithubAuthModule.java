@@ -81,11 +81,9 @@ public class GithubAuthModule extends AuthModule
 	 * @return [OAuth2AccessToken] 접근 토큰
 	 *
 	 * @throws IOException 데이터 입출력 예외
-	 * @throws ExecutionException 실행 예외
-	 * @throws InterruptedException 인터럽트 예외
 	 */
 	@Override
-	public OAuth2AccessToken getAccessToken(String code) throws IOException, ExecutionException, InterruptedException
+	public OAuth2AccessToken getAccessToken(String code) throws IOException
 	{
 		HashMap<String, String> params = new HashMap<>();
 		params.put("client_id", API_KEY);
@@ -128,9 +126,9 @@ public class GithubAuthModule extends AuthModule
 		
 		JsonNode node = mapper.readTree(responseBuilder.toString());
 		
-		String access_token = node.get("access_token").textValue();
-		String token_type = node.get("token_type").textValue();
-		String scope = node.get("scope").textValue();
+		String access_token = node.get("access_token") == null ? "미동의" : node.get("access_token").textValue();
+		String token_type = node.get("token_type") == null ? "미동의" : node.get("token_type").textValue();
+		String scope = node.get("scope") == null ? "미동의" : node.get("scope").textValue();
 		
 		return new OAuth2AccessToken(access_token, token_type, 0, null, scope, responseBuilder.toString());
 	}
@@ -173,12 +171,11 @@ public class GithubAuthModule extends AuthModule
 		
 		JsonNode node = mapper.readTree(body);
 		
-		String id = node.get("node_id").textValue();
 		String email = node.get("email").textValue();
 		String name = node.get("name").textValue();
 		String picture = node.get("avatar_url").textValue();
 		
-		return new UserInfoBean(id, email, name, picture, MODULE_NAME);
+		return new UserInfoBean(email, name, picture, MODULE_NAME);
 	}
 	
 	/**

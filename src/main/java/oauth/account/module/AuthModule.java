@@ -1,6 +1,8 @@
 package oauth.account.module;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.scribejava.core.builder.ServiceBuilderOAuth20;
 import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.model.OAuth2AccessToken;
@@ -14,8 +16,15 @@ import lombok.Getter;
 import oauth.account.bean.ApiKeyBean;
 import oauth.account.bean.UserInfoBean;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -95,17 +104,57 @@ abstract public class AuthModule extends DefaultApi20
 	/**
 	 * 접근 토큰 갱신 및 반환 메서드
 	 *
-	 * @param refresh: [String] 리프레쉬 코드
+	 * @param access: [String] 접근 토큰
+	 * @param refresh: [String] 리프레쉬 토큰
 	 *
 	 * @return [OAuth2AccessToken] 접근 토큰
 	 *
 	 * @throws IOException 데이터 입출력 예외
-	 * @throws ExecutionException 실행 예외
-	 * @throws InterruptedException 인터럽트 예외
 	 */
-	public OAuth2AccessToken getRefreshAccessToken(String refresh) throws IOException, ExecutionException, InterruptedException
+	public OAuth2AccessToken getRefreshAccessToken(String access, String refresh) throws IOException
 	{
-		return service.refreshAccessToken(refresh);
+		HashMap<String, String> params = new HashMap<>();
+		params.put("client_id", service.getApiKey());
+		params.put("client_secret", service.getApiSecret());
+		params.put("refresh_token", refresh);
+		
+		StringBuilder builder = new StringBuilder();
+		
+		for (Map.Entry<String, String> param : params.entrySet())
+		{
+			builder.append("&").append(URLEncoder.encode(param.getKey(), StandardCharsets.UTF_8)).append("=").append(URLEncoder.encode(param.getValue(), StandardCharsets.UTF_8));
+		}
+		
+		byte[] paramBytes = builder.toString().getBytes(StandardCharsets.UTF_8);
+		
+		URL url = new URL(getRefreshTokenEndpoint());
+		
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		connection.setRequestMethod("POST");
+		connection.setDoOutput(true);
+		connection.getOutputStream().write(paramBytes);
+		
+		BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
+		
+		StringBuilder responseBuilder = new StringBuilder();
+		String temp;
+		
+		while ((temp = reader.readLine()) != null)
+		{
+			responseBuilder.append(temp);
+		}
+		
+		reader.close();
+		
+		ObjectMapper mapper = new ObjectMapper();
+		
+		JsonNode node = mapper.readTree(responseBuilder.toString());
+		
+		String access_token = node.get("access_token").textValue();
+		String token_type = node.get("token_type").textValue();
+		int expires_in = node.get("expires_in").intValue();
+		
+		return new OAuth2AccessToken(access_token, token_type, expires_in, null, null, responseBuilder.toString());
 	}
 	
 	/**
@@ -125,6 +174,17 @@ abstract public class AuthModule extends DefaultApi20
 		service.signRequest(access, oAuthRequest);
 		
 		return service.execute(oAuthRequest);
+	}
+	
+	/**
+	 * 접근 토큰 재발급 요청 URL 반환 메서드
+	 *
+	 * @return [String] 접근 토큰 재발급 요청 URL
+	 */
+	@Override
+	public String getRefreshTokenEndpoint()
+	{
+		return Util.builder(getAccessTokenEndpoint(), "?grant_type=refresh_token");
 	}
 	
 	/**

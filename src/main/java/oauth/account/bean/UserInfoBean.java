@@ -15,9 +15,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UserInfoBean
 {
-	// 아이디
-	private String id;
-	
 	// 이메일
 	private String email;
 	

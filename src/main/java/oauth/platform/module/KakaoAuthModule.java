@@ -96,12 +96,11 @@ public class KakaoAuthModule extends AuthModule
 		
 		JsonNode node = mapper.readTree(body);
 		
-		String id = node.get("id").asText();
-		String email = node.get("kakao_account").get("email").textValue();
-		String name = node.get("kakao_account").get("profile").get("nickname").textValue();
-		String picture = node.get("kakao_account").get("profile").get("profile_image_url").textValue();
+		String email = node.get("kakao_account").get("email") == null ? "미동의" : node.get("kakao_account").get("email").textValue();
+		String name = node.get("kakao_account").get("profile").get("nickname") == null ? "미동의" : node.get("kakao_account").get("profile").get("nickname").textValue();
+		String picture = node.get("kakao_account").get("profile").get("profile_image_url") == null ? "미동의" : node.get("kakao_account").get("profile").get("profile_image_url").textValue();
 		
-		return new UserInfoBean(id, email, name, picture, MODULE_NAME);
+		return new UserInfoBean(email, name, picture, MODULE_NAME);
 	}
 	
 	/**

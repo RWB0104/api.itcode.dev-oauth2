@@ -49,10 +49,18 @@ public class LoginAPI extends API
 		return new AccountPostProcess(request, response).postLoginResponse(platform, loginResponseBean.getCode(), loginResponseBean.getState());
 	}
 	
+	/**
+	 * 자동 로그인 응답 메서드
+	 *
+	 * @param access: [String] 접근 토큰
+	 * @param refresh: [String] 리프레쉬 토큰
+	 *
+	 * @return [Response] 응답 객체
+	 */
 	@POST
 	@Path("/auto")
-	public Response autoLoginResponse(@CookieParam("refresh") String refresh)
+	public Response autoLoginResponse(@CookieParam("access") String access, @CookieParam("refresh") String refresh)
 	{
-		return new AccountPostProcess(request, response).postAutoLoginResponse(refresh);
+		return new AccountPostProcess(request, response).postAutoLoginResponse(access, refresh);
 	}
 }

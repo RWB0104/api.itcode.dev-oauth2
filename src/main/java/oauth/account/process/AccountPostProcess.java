@@ -72,7 +72,7 @@ public class AccountPostProcess extends Process
 			
 			String accessToken = oAuth2AccessToken.getAccessToken();
 			String refreshToken = oAuth2AccessToken.getRefreshToken();
-			
+			System.out.println(accessToken + " : " + refreshToken);
 			HashMap<String, Object> accessMap = new HashMap<>();
 			accessMap.put("access", accessToken);
 			accessMap.put("platform", platform);
@@ -85,7 +85,7 @@ public class AccountPostProcess extends Process
 			String refreshJwt = JwtModule.generateJwt(state, refreshMap);
 			
 			NewCookie accessCookie = new NewCookie("access", accessJwt, "/oauth2", ".itcode.dev", "access token", -1, true, true);
-			NewCookie refreshCookie = new NewCookie("refresh", refreshJwt, "/oauth2", ".itcode.dev", "refresh token", 86400 * 7 + 3600 * 9, true, true);
+			NewCookie refreshCookie = new NewCookie("refresh", refreshJwt, "/oauth2", ".itcode.dev", "refresh token", refreshToken == null ? 0 : 86400 * 7 + 3600 * 9, true, true);
 			
 			responseBean.setFlag(true);
 			responseBean.setTitle("success");
@@ -120,11 +120,12 @@ public class AccountPostProcess extends Process
 	/**
 	 * 자동 로그인 응답 반환 메서드
 	 *
+	 * @param access: [String] 접근 토큰
 	 * @param refresh: [String] 리프레쉬 토큰
 	 *
 	 * @return [Response] 응답 객체
 	 */
-	public Response postAutoLoginResponse(String refresh)
+	public Response postAutoLoginResponse(String access, String refresh)
 	{
 		Response response;
 		
@@ -133,8 +134,19 @@ public class AccountPostProcess extends Process
 		// 자동 로그인 시도
 		try
 		{
+			// 접근 토큰이 있을 경우
+			if (access != null)
+			{
+				responseBean.setFlag(true);
+				responseBean.setTitle("success");
+				responseBean.setMessage("auto authorized success");
+				responseBean.setBody(null);
+				
+				response = Response.ok(responseBean, MediaType.APPLICATION_JSON).build();
+			}
+			
 			// 리프레쉬 토큰이 없을 경우
-			if (refresh == null)
+			else if (refresh == null)
 			{
 				responseBean.setFlag(false);
 				responseBean.setTitle("fail");
@@ -147,14 +159,14 @@ public class AccountPostProcess extends Process
 			// 리프레쉬 토큰이 있을 경우
 			else
 			{
-				Jws<Claims> jws = JwtModule.openJwt(refresh);
+				Jws<Claims> refreshJws = JwtModule.openJwt(refresh);
 				
-				String refreshToken = jws.getBody().get("refresh", String.class);
-				String platform = jws.getBody().get("platform", String.class);
+				String refreshToken = refreshJws.getBody().get("refresh", String.class);
+				String platform = refreshJws.getBody().get("platform", String.class);
 				
 				AuthModule authModule = getAuthModule(platform);
 				
-				OAuth2AccessToken oAuth2AccessToken = authModule.getRefreshAccessToken(refreshToken);
+				OAuth2AccessToken oAuth2AccessToken = authModule.getRefreshAccessToken(access, refreshToken);
 				
 				String accessToken = oAuth2AccessToken.getAccessToken();
 				

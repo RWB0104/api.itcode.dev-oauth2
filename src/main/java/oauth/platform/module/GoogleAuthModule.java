@@ -32,7 +32,7 @@ public class GoogleAuthModule extends AuthModule
 		CALLBACK_URL = apiKeyBean.getCallback();
 	}
 	
-	private static final ServiceBuilderOAuth20 SERVICE_BUILDER = new ServiceBuilder(API_KEY).apiSecret(SECRET_KEY).callback(CALLBACK_URL).defaultScope("https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile");
+	private static final ServiceBuilderOAuth20 SERVICE_BUILDER = new ServiceBuilder(API_KEY).apiSecret(SECRET_KEY).callback(CALLBACK_URL).defaultScope("https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile").debug();
 	
 	private static final GoogleAuthModule INSTANCE = new GoogleAuthModule(SERVICE_BUILDER, MODULE_NAME);
 	
@@ -73,12 +73,11 @@ public class GoogleAuthModule extends AuthModule
 		
 		JsonNode node = mapper.readTree(body);
 		
-		String id = node.get("id").textValue();
-		String email = node.get("email").textValue();
-		String name = node.get("name").textValue();
-		String picture = node.get("picture").textValue();
+		String email = node.get("email") == null ? "미동의" : node.get("email").textValue();
+		String name = node.get("name") == null ? "미동의" : node.get("name").textValue();
+		String picture = node.get("picture") == null ? "미동의" : node.get("picture").textValue();
 		
-		return new UserInfoBean(id, email, name, picture, MODULE_NAME);
+		return new UserInfoBean(email, name, picture, MODULE_NAME);
 	}
 	
 	/**
@@ -89,7 +88,7 @@ public class GoogleAuthModule extends AuthModule
 	@Override
 	public String getAccessTokenEndpoint()
 	{
-		return "https://accounts.google.com/o/oauth2/token";
+		return "https://oauth2.googleapis.com/token";
 	}
 	
 	/**
@@ -100,7 +99,7 @@ public class GoogleAuthModule extends AuthModule
 	@Override
 	protected String getAuthorizationBaseUrl()
 	{
-		return "https://accounts.google.com/o/oauth2/auth";
+		return "https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&prompt=consent";
 	}
 	
 	/**
