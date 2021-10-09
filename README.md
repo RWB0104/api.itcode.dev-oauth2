@@ -1,6 +1,8 @@
 # OAuth2.0 Server WAR
 
-OAuth2.0 서버 v1.0
+<p align="center"><img src="https://project.itcode.dev/oauth2/assets/images/logo.png" alt="logo" /></p>
+
+<h4 align="center">OAuth2.0 서버 v1.0</h4>
 
 ## Information
 
