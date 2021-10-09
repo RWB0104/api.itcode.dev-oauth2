@@ -65,11 +65,10 @@ public class Util
 			path = builder(path, ".properties");
 		}
 		
-		Properties properties = new Properties();
-		properties.load(new FileInputStream(path));
-		
 		HashMap<String, String> map = new HashMap<>();
 		
+		Properties properties = new Properties();
+		properties.load(new FileInputStream(path));
 		properties.keySet().forEach(e -> {
 			String key = e.toString();
 			

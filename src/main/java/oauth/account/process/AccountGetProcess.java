@@ -84,11 +84,11 @@ public class AccountGetProcess extends Process
 	/**
 	 * 사용자 정보 응답 반환 메서드
 	 *
-	 * @param access: [String] 접근 토큰
+	 * @param accessCookie: [String] 접근 토큰 쿠키
 	 *
 	 * @return [Response] 응답 객체
 	 */
-	public Response getUserInfoResponse(String access)
+	public Response getUserInfoResponse(String accessCookie)
 	{
 		Response response;
 		
@@ -97,7 +97,7 @@ public class AccountGetProcess extends Process
 		// 사용자 정보 응답 생성 시도
 		try
 		{
-			Jws<Claims> jws = JwtModule.openJwt(access);
+			Jws<Claims> jws = JwtModule.openJwt(accessCookie);
 			
 			String accessToken = jws.getBody().get("access", String.class);
 			String platform = jws.getBody().get("platform", String.class);

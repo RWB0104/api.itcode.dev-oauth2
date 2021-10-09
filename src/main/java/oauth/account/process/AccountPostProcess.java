@@ -120,12 +120,12 @@ public class AccountPostProcess extends Process
 	/**
 	 * 자동 로그인 응답 반환 메서드
 	 *
-	 * @param access: [String] 접근 토큰
-	 * @param refresh: [String] 리프레쉬 토큰
+	 * @param accessCookie: [String] 접근 토큰 쿠키
+	 * @param refreshCookie: [String] 리프레쉬 토큰 쿠키
 	 *
 	 * @return [Response] 응답 객체
 	 */
-	public Response postAutoLoginResponse(String access, String refresh)
+	public Response postAutoLoginResponse(String accessCookie, String refreshCookie)
 	{
 		Response response;
 		
@@ -134,8 +134,8 @@ public class AccountPostProcess extends Process
 		// 자동 로그인 시도
 		try
 		{
-			// 접근 토큰이 있을 경우
-			if (access != null)
+			// 접근 토큰 쿠키가 있을 경우
+			if (accessCookie != null)
 			{
 				responseBean.setFlag(true);
 				responseBean.setTitle("success");
@@ -145,8 +145,8 @@ public class AccountPostProcess extends Process
 				response = Response.ok(responseBean, MediaType.APPLICATION_JSON).build();
 			}
 			
-			// 리프레쉬 토큰이 없을 경우
-			else if (refresh == null)
+			// 리프레쉬 토큰 쿠키가 없을 경우
+			else if (refreshCookie == null)
 			{
 				responseBean.setFlag(false);
 				responseBean.setTitle("fail");
@@ -156,17 +156,17 @@ public class AccountPostProcess extends Process
 				response = Response.ok(responseBean, MediaType.APPLICATION_JSON).build();
 			}
 			
-			// 리프레쉬 토큰이 있을 경우
+			// 리프레쉬 토큰 쿠키가 있을 경우
 			else
 			{
-				Jws<Claims> refreshJws = JwtModule.openJwt(refresh);
+				Jws<Claims> refreshJws = JwtModule.openJwt(refreshCookie);
 				
 				String refreshToken = refreshJws.getBody().get("refresh", String.class);
 				String platform = refreshJws.getBody().get("platform", String.class);
 				
 				AuthModule authModule = getAuthModule(platform);
 				
-				OAuth2AccessToken oAuth2AccessToken = authModule.getRefreshAccessToken(access, refreshToken);
+				OAuth2AccessToken oAuth2AccessToken = authModule.getRefreshAccessToken(refreshToken);
 				
 				String accessToken = oAuth2AccessToken.getAccessToken();
 				
@@ -183,15 +183,15 @@ public class AccountPostProcess extends Process
 				String accessJwt = JwtModule.generateJwt(uuid, accessMap);
 				String refreshJwt = JwtModule.generateJwt(uuid, refreshMap);
 				
-				NewCookie accessCookie = new NewCookie("access", accessJwt, "/oauth2", ".itcode.dev", "access token", -1, true, true);
-				NewCookie refreshCookie = new NewCookie("refresh", refreshJwt, "/oauth2", ".itcode.dev", "refresh token", 86400 * 7 + 3600 * 9, true, true);
+				NewCookie newAccessCookie = new NewCookie("access", accessJwt, "/oauth2", ".itcode.dev", "access token", -1, true, true);
+				NewCookie newRefreshCookie = new NewCookie("refresh", refreshJwt, "/oauth2", ".itcode.dev", "refresh token", 86400 * 7 + 3600 * 9, true, true);
 				
 				responseBean.setFlag(true);
 				responseBean.setTitle("success");
 				responseBean.setMessage("auto authorized success");
 				responseBean.setBody(null);
 				
-				response = Response.ok(responseBean, MediaType.APPLICATION_JSON).cookie(accessCookie, refreshCookie).build();
+				response = Response.ok(responseBean, MediaType.APPLICATION_JSON).cookie(newAccessCookie, newRefreshCookie).build();
 			}
 		}
 		
@@ -205,10 +205,10 @@ public class AccountPostProcess extends Process
 			responseBean.setMessage(e.getMessage());
 			responseBean.setBody(null);
 			
-			NewCookie accessCookie = new NewCookie("access", null, "/oauth2", ".itcode.dev", "access token", 0, true, true);
-			NewCookie refreshCookie = new NewCookie("refresh", null, "/oauth2", ".itcode.dev", "refresh token", 0, true, true);
+			NewCookie newAccessCookie = new NewCookie("access", null, "/oauth2", ".itcode.dev", "access token", 0, true, true);
+			NewCookie newRefreshCookie = new NewCookie("refresh", null, "/oauth2", ".itcode.dev", "refresh token", 0, true, true);
 			
-			response = Response.status(Response.Status.BAD_REQUEST).entity(responseBean).type(MediaType.APPLICATION_JSON).cookie(accessCookie, refreshCookie).build();
+			response = Response.status(Response.Status.BAD_REQUEST).entity(responseBean).type(MediaType.APPLICATION_JSON).cookie(newAccessCookie, newRefreshCookie).build();
 		}
 		
 		return response;

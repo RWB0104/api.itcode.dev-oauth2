@@ -104,14 +104,13 @@ abstract public class AuthModule extends DefaultApi20
 	/**
 	 * 접근 토큰 갱신 및 반환 메서드
 	 *
-	 * @param access: [String] 접근 토큰
 	 * @param refresh: [String] 리프레쉬 토큰
 	 *
 	 * @return [OAuth2AccessToken] 접근 토큰
 	 *
 	 * @throws IOException 데이터 입출력 예외
 	 */
-	public OAuth2AccessToken getRefreshAccessToken(String access, String refresh) throws IOException
+	public OAuth2AccessToken getRefreshAccessToken(String refresh) throws IOException
 	{
 		HashMap<String, String> params = new HashMap<>();
 		params.put("client_id", service.getApiKey());
