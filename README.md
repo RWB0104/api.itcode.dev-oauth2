@@ -12,6 +12,13 @@
 <br />
 <br />
 
+## Download
+
+* [최신 릴리즈](https://github.com/RWB0104/api.itcode.dev-oauth2/releases/tag/v1.0)
+
+<br />
+<br />
+
 ## JAVA Dependency
 
 * ![jakarta.servlet-api](https://img.shields.io/badge/jakarta.servlet--api-v5.0.0-blue)
