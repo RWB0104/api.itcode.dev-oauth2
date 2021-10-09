@@ -1,4 +1,4 @@
-# OAuth2.0 Server WAR
+# OAuth2.0 Server
 
 <p align="center"><img src="https://project.itcode.dev/oauth2/assets/images/logo.png" alt="logo" /></p>
 
