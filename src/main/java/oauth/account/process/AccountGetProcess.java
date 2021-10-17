@@ -48,11 +48,11 @@ public class AccountGetProcess extends Process
 		
 		ResponseBean<String> responseBean = new ResponseBean<>();
 		
-		String state = UUID.randomUUID().toString();
-		
 		// 인증 URL 응답 생성 시도
 		try
 		{
+			String state = UUID.randomUUID().toString();
+			
 			request.getSession().setAttribute("state", state);
 			
 			AuthModule authModule = getAuthModule(platform);
@@ -121,6 +121,47 @@ public class AccountGetProcess extends Process
 		}
 		
 		// 예외
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			
+			responseBean.setFlag(false);
+			responseBean.setTitle(e.getClass().getSimpleName());
+			responseBean.setMessage(e.getMessage());
+			responseBean.setBody(null);
+			
+			response = Response.status(Response.Status.BAD_REQUEST).entity(responseBean).type(MediaType.APPLICATION_JSON).build();
+		}
+		
+		return response;
+	}
+	
+	public Response getReAuthorizationUrlResponse(String accessCookie)
+	{
+		Response response;
+		
+		ResponseBean<String> responseBean = new ResponseBean<>();
+		
+		try
+		{
+			String state = UUID.randomUUID().toString();
+			
+			request.getSession().setAttribute("state", state);
+			
+			Jws<Claims> jws = JwtModule.openJwt(accessCookie);
+			
+			String platform = jws.getBody().get("platform", String.class);
+			
+			AuthModule authModule = getAuthModule(platform);
+			
+			responseBean.setFlag(true);
+			responseBean.setTitle("success");
+			responseBean.setMessage(Util.builder(platform, " reauthrorization url response success"));
+			responseBean.setBody(authModule.getReAuthorizationUrl(state));
+			
+			response = Response.ok(responseBean, MediaType.APPLICATION_JSON).build();
+		}
+		
 		catch (Exception e)
 		{
 			e.printStackTrace();

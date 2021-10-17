@@ -72,7 +72,7 @@ public class AccountPostProcess extends Process
 			
 			String accessToken = oAuth2AccessToken.getAccessToken();
 			String refreshToken = oAuth2AccessToken.getRefreshToken();
-			System.out.println(accessToken + " : " + refreshToken);
+			
 			HashMap<String, Object> accessMap = new HashMap<>();
 			accessMap.put("access", accessToken);
 			accessMap.put("platform", platform);

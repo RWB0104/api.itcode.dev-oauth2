@@ -80,6 +80,18 @@ public class GoogleAuthModule extends AuthModule
 		return new UserInfoBean(email, name, picture, MODULE_NAME);
 	}
 	
+	@Override
+	public boolean deleteInfo(String access)
+	{
+		return false;
+	}
+	
+	@Override
+	public String getReAuthorizationUrl(String state)
+	{
+		return null;
+	}
+	
 	/**
 	 * 접근 토큰 요청 URL 반환 메서드
 	 *

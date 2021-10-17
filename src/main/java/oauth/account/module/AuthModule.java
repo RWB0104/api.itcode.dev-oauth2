@@ -57,6 +57,10 @@ abstract public class AuthModule extends DefaultApi20
 	
 	abstract public UserInfoBean getUserInfoBean(String body) throws JsonProcessingException;
 	
+	abstract public boolean deleteInfo(String access);
+	
+	abstract public String getReAuthorizationUrl(String state);
+	
 	/**
 	 * 인증 URL 반환 메서드
 	 *
@@ -153,7 +157,7 @@ abstract public class AuthModule extends DefaultApi20
 		String token_type = node.get("token_type").textValue();
 		int expires_in = node.get("expires_in").intValue();
 		
-		return new OAuth2AccessToken(access_token, token_type, expires_in, null, null, responseBuilder.toString());
+		return new OAuth2AccessToken(access_token, token_type, expires_in, refresh, null, responseBuilder.toString());
 	}
 	
 	/**

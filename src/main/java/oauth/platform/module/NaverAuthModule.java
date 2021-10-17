@@ -9,6 +9,8 @@ import oauth.account.bean.ApiKeyBean;
 import oauth.account.bean.UserInfoBean;
 import oauth.account.module.AuthModule;
 
+import java.util.HashMap;
+
 /**
  * Naver 인증 모듈 클래스
  *
@@ -88,6 +90,22 @@ public class NaverAuthModule extends AuthModule
 		String profile_image = node.get("response").get("profile_image") == null ? "미동의" : node.get("response").get("profile_image").textValue();
 		
 		return new UserInfoBean(email, name, profile_image, MODULE_NAME);
+	}
+	
+	@Override
+	public boolean deleteInfo(String access)
+	{
+		return false;
+	}
+	
+	@Override
+	public String getReAuthorizationUrl(String state)
+	{
+		HashMap<String, String> params = new HashMap<>();
+		params.put("state", state);
+		params.put("auth_type", "reprompt");
+		
+		return service.getAuthorizationUrl(params);
 	}
 	
 	/**

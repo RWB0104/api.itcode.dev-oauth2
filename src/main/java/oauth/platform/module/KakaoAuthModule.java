@@ -12,6 +12,7 @@ import oauth.account.bean.UserInfoBean;
 import oauth.account.module.AuthModule;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -101,6 +102,22 @@ public class KakaoAuthModule extends AuthModule
 		String picture = node.get("kakao_account").get("profile").get("profile_image_url") == null ? "미동의" : node.get("kakao_account").get("profile").get("profile_image_url").textValue();
 		
 		return new UserInfoBean(email, name, picture, MODULE_NAME);
+	}
+	
+	@Override
+	public boolean deleteInfo(String access)
+	{
+		return false;
+	}
+	
+	@Override
+	public String getReAuthorizationUrl(String state)
+	{
+		HashMap<String, String> params = new HashMap<>();
+		params.put("state", state);
+		params.put("scope", "profile_nickname,profile_image,account_email");
+		
+		return service.getAuthorizationUrl(params);
 	}
 	
 	/**
