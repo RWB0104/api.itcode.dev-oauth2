@@ -173,9 +173,9 @@ public class GithubAuthModule extends AuthModule
 		
 		JsonNode node = mapper.readTree(body);
 		
-		String email = node.get("email").textValue();
-		String name = node.get("name").textValue();
-		String picture = node.get("avatar_url").textValue();
+		String email = node.get("email") == null ? "미동의" : node.get("email").textValue();
+		String name = node.get("name") == null ? "미동의" : node.get("name").textValue();
+		String picture = node.get("avatar_url") == null ? "/oauth2/assets/images/logo.png" : node.get("avatar_url").textValue();
 		
 		return new UserInfoBean(email, name, picture, MODULE_NAME);
 	}

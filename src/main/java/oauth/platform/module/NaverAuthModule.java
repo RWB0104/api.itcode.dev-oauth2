@@ -92,7 +92,7 @@ public class NaverAuthModule extends AuthModule
 		
 		String email = node.get("response").get("email") == null ? "미동의" : node.get("response").get("email").textValue();
 		String name = node.get("response").get("name") == null ? "미동의" : node.get("response").get("name").textValue();
-		String profile_image = node.get("response").get("profile_image") == null ? "미동의" : node.get("response").get("profile_image").textValue();
+		String profile_image = node.get("response").get("profile_image") == null ? "/oauth2/assets/images/logo.png" : node.get("response").get("profile_image").textValue();
 		
 		return new UserInfoBean(email, name, profile_image, MODULE_NAME);
 	}

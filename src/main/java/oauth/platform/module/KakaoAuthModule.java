@@ -102,7 +102,7 @@ public class KakaoAuthModule extends AuthModule
 		
 		String email = node.get("kakao_account").get("email") == null ? "미동의" : node.get("kakao_account").get("email").textValue();
 		String name = node.get("kakao_account").get("profile").get("nickname") == null ? "미동의" : node.get("kakao_account").get("profile").get("nickname").textValue();
-		String picture = node.get("kakao_account").get("profile").get("profile_image_url") == null ? "미동의" : node.get("kakao_account").get("profile").get("profile_image_url").textValue();
+		String picture = node.get("kakao_account").get("profile").get("profile_image_url") == null ? "/oauth2/assets/images/logo.png" : node.get("kakao_account").get("profile").get("profile_image_url").textValue();
 		
 		return new UserInfoBean(email, name, picture, MODULE_NAME);
 	}

@@ -80,7 +80,7 @@ public class GoogleAuthModule extends AuthModule
 		
 		String email = node.get("email") == null ? "미동의" : node.get("email").textValue();
 		String name = node.get("name") == null ? "미동의" : node.get("name").textValue();
-		String picture = node.get("picture") == null ? "미동의" : node.get("picture").textValue();
+		String picture = node.get("picture") == null ? "/oauth2/assets/images/logo.png" : node.get("picture").textValue();
 		
 		return new UserInfoBean(email, name, picture, MODULE_NAME);
 	}
