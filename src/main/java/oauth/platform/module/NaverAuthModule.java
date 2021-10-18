@@ -5,11 +5,16 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.builder.ServiceBuilderOAuth20;
+import com.github.scribejava.core.model.OAuthRequest;
+import com.github.scribejava.core.model.Response;
+import com.github.scribejava.core.model.Verb;
 import oauth.account.bean.ApiKeyBean;
 import oauth.account.bean.UserInfoBean;
 import oauth.account.module.AuthModule;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Naver 인증 모듈 클래스
@@ -93,9 +98,20 @@ public class NaverAuthModule extends AuthModule
 	}
 	
 	@Override
-	public boolean deleteInfo(String access)
+	public boolean deleteInfo(String access) throws IOException, ExecutionException, InterruptedException
 	{
-		return false;
+		OAuthRequest oAuthRequest = new OAuthRequest(Verb.GET, getAccessTokenEndpoint());
+		oAuthRequest.addQuerystringParameter("client_id", API_KEY);
+		oAuthRequest.addQuerystringParameter("client_secret", SECRET_KEY);
+		oAuthRequest.addQuerystringParameter("access_token", access);
+		oAuthRequest.addQuerystringParameter("grant_type", "delete");
+		oAuthRequest.addQuerystringParameter("service_provider", "NAVER");
+		
+		service.signRequest(access, oAuthRequest);
+		
+		Response response = service.execute(oAuthRequest);
+		
+		return response.isSuccessful();
 	}
 	
 	@Override

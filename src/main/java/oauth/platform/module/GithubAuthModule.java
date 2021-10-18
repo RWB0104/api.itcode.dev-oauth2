@@ -21,6 +21,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -121,6 +122,7 @@ public class GithubAuthModule extends AuthModule
 		}
 		
 		reader.close();
+		connection.disconnect();
 		
 		ObjectMapper mapper = new ObjectMapper();
 		
@@ -179,9 +181,30 @@ public class GithubAuthModule extends AuthModule
 	}
 	
 	@Override
-	public boolean deleteInfo(String access)
+	public boolean deleteInfo(String access) throws IOException
 	{
-		return false;
+		HashMap<String, String> params = new HashMap<>();
+		params.put("access_token", access);
+		
+		ObjectMapper mapper = new ObjectMapper();
+		
+		byte[] paramBytes = mapper.writeValueAsString(params).getBytes(StandardCharsets.UTF_8);
+		
+		URL url = new URL(Util.builder("https://api.github.com/applications/", API_KEY, "/grant"));
+		
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		connection.setRequestMethod("DELETE");
+		connection.addRequestProperty("Authorization", Util.builder("Basic ", Base64.getEncoder().encodeToString(Util.builder(API_KEY, ":", SECRET_KEY).getBytes())));
+		connection.addRequestProperty("Accept", "application/vnd.github.v3+json");
+		connection.addRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+		connection.setDoOutput(true);
+		connection.getOutputStream().write(paramBytes);
+		
+		int status = connection.getResponseCode();
+		System.out.println(status);
+		connection.disconnect();
+		
+		return status == 204;
 	}
 	
 	@Override

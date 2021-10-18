@@ -146,18 +146,33 @@ public class AccountGetProcess extends Process
 		{
 			String state = UUID.randomUUID().toString();
 			
-			request.getSession().setAttribute("state", state);
-			
 			Jws<Claims> jws = JwtModule.openJwt(accessCookie);
 			
 			String platform = jws.getBody().get("platform", String.class);
 			
 			AuthModule authModule = getAuthModule(platform);
 			
-			responseBean.setFlag(true);
-			responseBean.setTitle("success");
-			responseBean.setMessage(Util.builder(platform, " reauthrorization url response success"));
-			responseBean.setBody(authModule.getReAuthorizationUrl(state));
+			String url = authModule.getReAuthorizationUrl(state);
+			
+			// URL이 null일 경우
+			if (url == null)
+			{
+				responseBean.setFlag(false);
+				responseBean.setTitle("skipped");
+				responseBean.setMessage(Util.builder(platform, " doesn't need that service"));
+				responseBean.setBody(null);
+			}
+			
+			// URL이 유효할 경우
+			else
+			{
+				request.getSession().setAttribute("state", state);
+				
+				responseBean.setFlag(true);
+				responseBean.setTitle("success");
+				responseBean.setMessage(Util.builder(platform, " reauthrorization url response success"));
+				responseBean.setBody(authModule.getReAuthorizationUrl(state));
+			}
 			
 			response = Response.ok(responseBean, MediaType.APPLICATION_JSON).build();
 		}

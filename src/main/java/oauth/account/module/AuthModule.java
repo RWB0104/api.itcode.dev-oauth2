@@ -57,7 +57,7 @@ abstract public class AuthModule extends DefaultApi20
 	
 	abstract public UserInfoBean getUserInfoBean(String body) throws JsonProcessingException;
 	
-	abstract public boolean deleteInfo(String access);
+	abstract public boolean deleteInfo(String access) throws IOException, ExecutionException, InterruptedException;
 	
 	abstract public String getReAuthorizationUrl(String state);
 	

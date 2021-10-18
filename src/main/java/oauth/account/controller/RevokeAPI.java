@@ -1,11 +1,11 @@
 package oauth.account.controller;
 
 import global.module.API;
+import jakarta.ws.rs.CookieParam;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Response;
-import oauth.account.process.AccountGetProcess;
+import oauth.account.process.AccountDeleteProcess;
 
 /**
  * 취소 API 클래스
@@ -19,14 +19,14 @@ public class RevokeAPI extends API
 	/**
 	 * 연동 해제 URL 응답 메서드
 	 *
-	 * @param platform: [String] 플랫폼
+	 * @param accessCookie: [String] 접근 토큰 쿠키
 	 *
 	 * @return [Response] 응답 객체
 	 */
 	@DELETE
-	@Path("/{platform}")
-	public Response authorizationUrlResponse(@PathParam("platform") String platform)
+	@Path("")
+	public Response deleteInfoResponse(@CookieParam("access") String accessCookie)
 	{
-		return new AccountGetProcess(request, response).getAuthorizationUrlResponse(platform);
+		return new AccountDeleteProcess(request, response).deleteInfoResponse(accessCookie);
 	}
 }

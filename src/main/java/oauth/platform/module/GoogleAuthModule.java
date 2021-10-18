@@ -5,9 +5,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.builder.ServiceBuilderOAuth20;
+import com.github.scribejava.core.model.OAuthRequest;
+import com.github.scribejava.core.model.Verb;
 import oauth.account.bean.ApiKeyBean;
 import oauth.account.bean.UserInfoBean;
 import oauth.account.module.AuthModule;
+
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Google 인증 모듈 클래스
@@ -81,9 +86,14 @@ public class GoogleAuthModule extends AuthModule
 	}
 	
 	@Override
-	public boolean deleteInfo(String access)
+	public boolean deleteInfo(String access) throws IOException, ExecutionException, InterruptedException
 	{
-		return false;
+		OAuthRequest oAuthRequest = new OAuthRequest(Verb.POST, "https://oauth2.googleapis.com/revoke");
+		oAuthRequest.addBodyParameter("token", access);
+		
+		service.signRequest(access, oAuthRequest);
+		
+		return service.execute(oAuthRequest).isSuccessful();
 	}
 	
 	@Override

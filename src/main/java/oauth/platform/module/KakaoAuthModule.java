@@ -6,7 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.builder.ServiceBuilderOAuth20;
 import com.github.scribejava.core.model.OAuth2AccessToken;
+import com.github.scribejava.core.model.OAuthRequest;
+import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.AccessTokenRequestParams;
+import global.module.Util;
 import oauth.account.bean.ApiKeyBean;
 import oauth.account.bean.UserInfoBean;
 import oauth.account.module.AuthModule;
@@ -78,7 +81,7 @@ public class KakaoAuthModule extends AuthModule
 		params.addExtraParameter("client_id", API_KEY);
 		params.addExtraParameter("client_secret", SECRET_KEY);
 		
-		return super.getAccessToken(params);
+		return getAccessToken(params);
 	}
 	
 	/**
@@ -105,9 +108,15 @@ public class KakaoAuthModule extends AuthModule
 	}
 	
 	@Override
-	public boolean deleteInfo(String access)
+	public boolean deleteInfo(String access) throws IOException, ExecutionException, InterruptedException
 	{
-		return false;
+		OAuthRequest oAuthRequest = new OAuthRequest(Verb.POST, "https://kapi.kakao.com/v1/user/unlink");
+		oAuthRequest.addHeader("Content-Type", "application/x-www-form-urlencoded");
+		oAuthRequest.addHeader("Authorization", Util.builder("Bearer ", access));
+		
+		service.signRequest(access, oAuthRequest);
+		
+		return service.execute(oAuthRequest).isSuccessful();
 	}
 	
 	@Override
