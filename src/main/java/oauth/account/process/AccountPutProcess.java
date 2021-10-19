@@ -40,7 +40,7 @@ public class AccountPutProcess extends Process
 	 *
 	 * @return [Response] 응답 객체
 	 */
-	public Response putAgreementUrlResponse(String accessCookie)
+	public Response putUpdateAuthorizationUrl(String accessCookie)
 	{
 		Response response;
 		

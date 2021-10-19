@@ -45,9 +45,9 @@ public class LoginAPI extends API
 	 */
 	@PUT
 	@Path("/put")
-	public Response putAuthorizationUrlResponse(@PathParam("access") String accessCookie)
+	public Response putAuthorizationUrlResponse(@CookieParam("access") String accessCookie)
 	{
-		return new AccountPutProcess(request, response).putAgreementUrlResponse(accessCookie);
+		return new AccountPutProcess(request, response).putUpdateAuthorizationUrl(accessCookie);
 	}
 	
 	/**
