@@ -59,7 +59,7 @@ abstract public class AuthModule extends DefaultApi20
 	
 	abstract public boolean deleteInfo(String access) throws IOException, ExecutionException, InterruptedException;
 	
-	abstract public String getAgreementUrl(String state);
+	abstract public String getUpdateAuthorizationUrl(String state);
 	
 	/**
 	 * 인증 URL 반환 메서드

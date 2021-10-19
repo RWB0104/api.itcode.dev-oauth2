@@ -4,12 +4,14 @@ import global.module.API;
 import jakarta.ws.rs.CookieParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Response;
 import oauth.account.bean.LoginResponseBean;
 import oauth.account.process.AccountGetProcess;
 import oauth.account.process.AccountPostProcess;
+import oauth.account.process.AccountPutProcess;
 
 /**
  * 로그인 API 클래스
@@ -32,6 +34,20 @@ public class LoginAPI extends API
 	public Response authorizationUrlResponse(@PathParam("platform") String platform)
 	{
 		return new AccountGetProcess(request, response).getAuthorizationUrlResponse(platform);
+	}
+	
+	/**
+	 * 정보 제공 동의 갱신 URL 응답 메서드
+	 *
+	 * @param accessCookie: [String] 접근 토큰 쿠키
+	 *
+	 * @return [Response] 응답 객체
+	 */
+	@PUT
+	@Path("/put")
+	public Response putAuthorizationUrlResponse(@PathParam("access") String accessCookie)
+	{
+		return new AccountPutProcess(request, response).putAgreementUrlResponse(accessCookie);
 	}
 	
 	/**

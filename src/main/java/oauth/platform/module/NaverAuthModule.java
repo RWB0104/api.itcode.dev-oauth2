@@ -126,14 +126,14 @@ public class NaverAuthModule extends AuthModule
 	}
 	
 	/**
-	 * 정보 제공 동의 URL 반환 메서드
+	 * 정보 제공 동의 갱신 URL 반환 메서드
 	 *
 	 * @param state: [String] 고유 상태값
 	 *
-	 * @return [String] 정보 제공 재동의 URL
+	 * @return [String] 정보 제공 동의 갱신 URL
 	 */
 	@Override
-	public String getAgreementUrl(String state)
+	public String getUpdateAuthorizationUrl(String state)
 	{
 		HashMap<String, String> params = new HashMap<>();
 		params.put("state", state);
