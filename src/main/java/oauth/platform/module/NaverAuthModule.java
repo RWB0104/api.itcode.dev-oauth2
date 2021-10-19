@@ -97,6 +97,17 @@ public class NaverAuthModule extends AuthModule
 		return new UserInfoBean(email, name, profile_image, MODULE_NAME);
 	}
 	
+	/**
+	 * 연동 해제 결과 반환 메서드
+	 *
+	 * @param access: [String] 접근 토큰
+	 *
+	 * @return [boolean] 연동 해제 결과
+	 *
+	 * @throws IOException 데이터 입출력 예외
+	 * @throws ExecutionException 실행 예외
+	 * @throws InterruptedException 인터럽트 예외
+	 */
 	@Override
 	public boolean deleteInfo(String access) throws IOException, ExecutionException, InterruptedException
 	{
@@ -114,8 +125,15 @@ public class NaverAuthModule extends AuthModule
 		return response.isSuccessful();
 	}
 	
+	/**
+	 * 정보 제공 동의 URL 반환 메서드
+	 *
+	 * @param state: [String] 고유 상태값
+	 *
+	 * @return [String] 정보 제공 재동의 URL
+	 */
 	@Override
-	public String getReAuthorizationUrl(String state)
+	public String getAgreementUrl(String state)
 	{
 		HashMap<String, String> params = new HashMap<>();
 		params.put("state", state);

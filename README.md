@@ -42,6 +42,12 @@
 * KAKAO
 * GitHub
 
+### buid.gradle 수정하기
+
+`build.gradle` 배포 태스크가 존재하므로, Gradle 빌드가 제대로 진행되지 않을 수 있다.
+
+파일의 아래쪽 `remotes`, `task deployCache`, `task deploy` 관련 설정을 제거한다.
+
 ### OAuth2.0 설정파일 생성하기
 
 `WEB-INF/` 경로 아래에 `.properties` 파일을 생성하여 API Key, Secret Key, Callback URL을 입력해야함.
@@ -183,9 +189,69 @@ Set-Cookie: refresh={refresh JWT}
 
 access, refresh 쿠키를 삭제한다.
 
+##### 요청
+
 ``` txt
 POST https://api.itcode.dev/oauth2/api/logout
 ```
+
+##### 응답
+
+``` json
+{
+	"flag": true,
+	"title": "success",
+	"message": "logout success",
+	"body": null
+}
+```
+
+``` txt
+# Header
+Set-Cookie: access={access JWT}
+Set-Cookie: refresh={refresh JWT}
+```
+
+| parameter |   data    | description |
+| :-------: | :-------: | :---------: |
+|   flag    | `boolean` |  동작 결과  |
+|   title   | `String`  |    제목     |
+|  message  | `String`  |    내용     |
+|   body    |  `null`   |   `null`    |
+
+`Max-Age` 0인 쿠키로 만들어 `Set-Cookie`로 덮어씌워 삭제한다.
+
+#### 정보 제공 재동의 URL API
+
+정보 제공 재동의 URL을 반환하는 API.
+
+Access Token으로 정보를 요청할 때, 기본적으로 사용자가 제공하기로 동의한 정보만을 제공한다.
+
+반환된 URL에 접속하면 정보 제공 항목을 수정할 수 있다.
+
+##### 요청
+
+``` txt
+GET https://api.itcode.dev/oauth2/api/reauth
+```
+
+##### 응답
+
+``` json
+{
+	"flag": true,
+	"title": "success",
+	"message": "naver reauthrorization url response success",
+	"body": "https://nid.naver.com/oauth2.0/authorize?auth_type=reprompt&state=43fc9520-78d6-4933-a4f5-a888a6b1d65e&response_type=code&client_id=czCaqAOB1aAjNRk6N_Oq&redirect_uri=https%3A%2F%2Fproject.itcode.dev%2Foauth2%2Fcallback%3Fplatform%3Dnaver"
+}
+```
+
+| parameter |   data    |     description      |
+| :-------: | :-------: | :------------------: |
+|   flag    | `boolean` |      동작 결과       |
+|   title   | `String`  |         제목         |
+|  message  | `String`  |         내용         |
+|   body    | `String`  | 정보 제공 재동의 URL |
 
 <br />
 <br />

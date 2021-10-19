@@ -180,6 +180,15 @@ public class GithubAuthModule extends AuthModule
 		return new UserInfoBean(email, name, picture, MODULE_NAME);
 	}
 	
+	/**
+	 * 연동 해제 결과 반환 메서드
+	 *
+	 * @param access: [String] 접근 토큰
+	 *
+	 * @return [boolean] 연동 해제 결과
+	 *
+	 * @throws IOException 데이터 입출력 예외
+	 */
 	@Override
 	public boolean deleteInfo(String access) throws IOException
 	{
@@ -201,14 +210,21 @@ public class GithubAuthModule extends AuthModule
 		connection.getOutputStream().write(paramBytes);
 		
 		int status = connection.getResponseCode();
-		System.out.println(status);
+		
 		connection.disconnect();
 		
 		return status == 204;
 	}
 	
+	/**
+	 * 정보 제공 동의 URL 반환 메서드
+	 *
+	 * @param state: [String] 고유 상태값
+	 *
+	 * @return [String] 정보 제공 재동의 URL
+	 */
 	@Override
-	public String getReAuthorizationUrl(String state)
+	public String getAgreementUrl(String state)
 	{
 		return null;
 	}

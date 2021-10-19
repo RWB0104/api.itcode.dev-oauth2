@@ -136,12 +136,20 @@ public class AccountGetProcess extends Process
 		return response;
 	}
 	
-	public Response getReAuthorizationUrlResponse(String accessCookie)
+	/**
+	 * 정보 제공 동의 URL 응답 반환 메서드
+	 *
+	 * @param accessCookie: [String] 접근 토큰 쿠키
+	 *
+	 * @return [Response] 응답 객체
+	 */
+	public Response getAgreementUrlResponse(String accessCookie)
 	{
 		Response response;
 		
 		ResponseBean<String> responseBean = new ResponseBean<>();
 		
+		// 정보 제공 동의 URL 응답 생성 시도
 		try
 		{
 			String state = UUID.randomUUID().toString();
@@ -152,7 +160,7 @@ public class AccountGetProcess extends Process
 			
 			AuthModule authModule = getAuthModule(platform);
 			
-			String url = authModule.getReAuthorizationUrl(state);
+			String url = authModule.getAgreementUrl(state);
 			
 			// URL이 null일 경우
 			if (url == null)
@@ -171,12 +179,13 @@ public class AccountGetProcess extends Process
 				responseBean.setFlag(true);
 				responseBean.setTitle("success");
 				responseBean.setMessage(Util.builder(platform, " reauthrorization url response success"));
-				responseBean.setBody(authModule.getReAuthorizationUrl(state));
+				responseBean.setBody(authModule.getAgreementUrl(state));
 			}
 			
 			response = Response.ok(responseBean, MediaType.APPLICATION_JSON).build();
 		}
 		
+		// 예외
 		catch (Exception e)
 		{
 			e.printStackTrace();

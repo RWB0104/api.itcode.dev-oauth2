@@ -24,6 +24,8 @@ hs_err_pid*
 
 build/
 
+gradle.properties
+
 github.properties
 google.properties
 naver.properties

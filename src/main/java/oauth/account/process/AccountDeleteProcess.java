@@ -44,7 +44,7 @@ public class AccountDeleteProcess extends Process
 		
 		ResponseBean<String> responseBean = new ResponseBean<>();
 		
-		// 로그아웃 응답 생성 시도
+		// 연동 해제 응답 생성 시도
 		try
 		{
 			Jws<Claims> jws = JwtModule.openJwt(accessCookie);
@@ -54,11 +54,13 @@ public class AccountDeleteProcess extends Process
 			
 			AuthModule authModule = getAuthModule(platform);
 			
+			// 연동 해제에 성공할 경우
 			if (authModule.deleteInfo(accessToken))
 			{
 				response = new AccountPostProcess(request, this.response).postLogoutResponse();
 			}
 			
+			// 아닐 경우
 			else
 			{
 				throw new RequestAuthenticationException("revoke fail");

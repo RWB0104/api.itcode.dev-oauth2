@@ -8,16 +8,16 @@ import jakarta.ws.rs.core.Response;
 import oauth.account.process.AccountGetProcess;
 
 /**
- * 재인증 API 클래스
+ * 정보 제공 동의 API 클래스
  *
  * @author RWB
  * @since 2021.10.18 Mon 01:24:31
  */
-@Path("/reauth")
-public class ReAuthAPI extends API
+@Path("/agreement")
+public class AgreementAPI extends API
 {
 	/**
-	 * 재인증 URL 응답 메서드
+	 * 정보 제공 동의 URL 응답 메서드
 	 *
 	 * @param accessCookie: [String] 접근 토큰 쿠키
 	 *
@@ -25,8 +25,8 @@ public class ReAuthAPI extends API
 	 */
 	@GET
 	@Path("")
-	public Response reAuthorizationUrlResponse(@CookieParam("access") String accessCookie)
+	public Response agreementUrlResponse(@CookieParam("access") String accessCookie)
 	{
-		return new AccountGetProcess(request, response).getReAuthorizationUrlResponse(accessCookie);
+		return new AccountGetProcess(request, response).getAgreementUrlResponse(accessCookie);
 	}
 }

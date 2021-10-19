@@ -8,7 +8,7 @@ import jakarta.ws.rs.core.Response;
 import oauth.account.process.AccountDeleteProcess;
 
 /**
- * 취소 API 클래스
+ * 연동 해제 API 클래스
  *
  * @author RWB
  * @since 2021.10.18 Mon 01:19:30

@@ -1,61 +1,93 @@
 plugins {
-	id 'java'
-	id 'war'
+    id 'java'
+    id 'war'
+    id 'org.hidetake.ssh' version '2.10.1'
 }
 
 group 'api.itcode.dev.oauth2'
 version '1.0-SNAPSHOT'
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	// https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api
-	compileOnly group: 'jakarta.servlet', name: 'jakarta.servlet-api', version: '5.0.0'
-	
-	// https://mvnrepository.com/artifact/org.projectlombok/lombok
-	compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
-	annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
-	
-	// https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt
-	implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
-	
-	// https://mvnrepository.com/artifact/com.github.scribejava/scribejava-apis
-	implementation group: 'com.github.scribejava', name: 'scribejava-apis', version: '8.3.1'
-	
-	// https://mvnrepository.com/artifact/org.glassfish.jersey.core/jersey-server
-	implementation group: 'org.glassfish.jersey.core', name: 'jersey-server', version: '3.0.3'
-	
-	// https://mvnrepository.com/artifact/org.glassfish.jersey.containers/jersey-container-servlet
-	implementation group: 'org.glassfish.jersey.containers', name: 'jersey-container-servlet', version: '3.0.3'
-	
-	// https://mvnrepository.com/artifact/org.glassfish.jersey.inject/jersey-hk2
-	implementation group: 'org.glassfish.jersey.inject', name: 'jersey-hk2', version: '3.0.3'
-	
-	// https://mvnrepository.com/artifact/org.glassfish.jersey.media/jersey-media-json-jackson
-	implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: '3.0.3'
-	
-	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    // https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api
+    compileOnly group: 'jakarta.servlet', name: 'jakarta.servlet-api', version: '5.0.0'
+
+    // https://mvnrepository.com/artifact/org.projectlombok/lombok
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
+
+    // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt
+    implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
+
+    // https://mvnrepository.com/artifact/com.github.scribejava/scribejava-apis
+    implementation group: 'com.github.scribejava', name: 'scribejava-apis', version: '8.3.1'
+
+    // https://mvnrepository.com/artifact/org.glassfish.jersey.core/jersey-server
+    implementation group: 'org.glassfish.jersey.core', name: 'jersey-server', version: '3.0.3'
+
+    // https://mvnrepository.com/artifact/org.glassfish.jersey.containers/jersey-container-servlet
+    implementation group: 'org.glassfish.jersey.containers', name: 'jersey-container-servlet', version: '3.0.3'
+
+    // https://mvnrepository.com/artifact/org.glassfish.jersey.inject/jersey-hk2
+    implementation group: 'org.glassfish.jersey.inject', name: 'jersey-hk2', version: '3.0.3'
+
+    // https://mvnrepository.com/artifact/org.glassfish.jersey.media/jersey-media-json-jackson
+    implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: '3.0.3'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 }
 
 test {
-	useJUnitPlatform()
+    useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
 }
 
 def warName = 'oauth2.war'
 
-tasks.withType(JavaCompile) {
-	options.encoding = 'UTF-8'
-}
-
 war {
-	archiveFileName.set(warName)
+    archiveFileName.set(warName)
 }
 
 task exploded(dependsOn: ':war') {
-	doLast {
-		ant.unzip(src: 'build/libs/' + warName, dest: 'build/exploded')
-	}
+    doLast {
+        ant.unzip(src: 'build/libs/' + warName, dest: 'build/exploded')
+    }
+}
+
+// 아래 내용은 원격 코드이므로 지울 것
+
+remotes {
+    dev {
+        host = project.properties.get('host').toString()
+        port = Integer.parseInt(project.properties.get('port').toString())
+        user = project.properties.get('user').toString()
+        knownHosts = allowAnyHosts
+        identity = file(project.properties.get('identity').toString())
+        passphrase = project.properties.get('passphrase').toString()
+    }
+}
+
+task deployCache {
+    ssh.run {
+        session(remotes.dev) {
+            put from: getProject().getBuildDir().toString() + '/libs/' + warName, into: project.properties.get('deployDir').toString()
+        }
+    }
+}
+
+task deploy(dependsOn: ':war') {
+    doLast {
+        ssh.run {
+            session(remotes.dev) {
+                put from: getProject().getBuildDir().toString() + '/libs/' + warName, into: project.properties.get('deployDir').toString()
+            }
+        }
+    }
 }
