@@ -41,18 +41,18 @@ public class KakaoAuthModule extends AuthModule
 		CALLBACK_URL = apiKeyBean.getCallback();
 	}
 	
-	private static final ServiceBuilderOAuth20 SERVICE_BUILDER = new ServiceBuilder(API_KEY).apiSecret(SECRET_KEY).callback(CALLBACK_URL).debug();
+	private static final ServiceBuilderOAuth20 SERVICE_BUILDER = new ServiceBuilder(API_KEY).apiSecret(SECRET_KEY).callback(CALLBACK_URL);
 	
-	private static final KakaoAuthModule INSTANCE = new KakaoAuthModule(SERVICE_BUILDER, MODULE_NAME);
+	private static final KakaoAuthModule INSTANCE = new KakaoAuthModule(SERVICE_BUILDER);
 	
 	/**
 	 * 생성자 메서드
 	 *
 	 * @param serviceBuilder: [ServiceBuilderOAuth20] API 서비스 빌더
 	 */
-	private KakaoAuthModule(ServiceBuilderOAuth20 serviceBuilder, String unique)
+	private KakaoAuthModule(ServiceBuilderOAuth20 serviceBuilder)
 	{
-		super(serviceBuilder, unique);
+		super(serviceBuilder);
 	}
 	
 	/**

@@ -49,19 +49,18 @@ public class GithubAuthModule extends AuthModule
 		CALLBACK_URL = apiKeyBean.getCallback();
 	}
 	
-	private static final ServiceBuilderOAuth20 SERVICE_BUILDER = new ServiceBuilder(API_KEY).apiSecret(SECRET_KEY).callback(CALLBACK_URL).defaultScope("https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile");
+	private static final ServiceBuilderOAuth20 SERVICE_BUILDER = new ServiceBuilder(API_KEY).apiSecret(SECRET_KEY).callback(CALLBACK_URL);
 	
-	private static final GithubAuthModule INSTANCE = new GithubAuthModule(SERVICE_BUILDER, MODULE_NAME);
+	private static final GithubAuthModule INSTANCE = new GithubAuthModule(SERVICE_BUILDER);
 	
 	/**
 	 * 생성자 메서드
 	 *
 	 * @param serviceBuilder: [ServiceBuilderOAuth20] API 서비스 빌더
-	 * @param unique: [String] 유니크 값
 	 */
-	private GithubAuthModule(ServiceBuilderOAuth20 serviceBuilder, String unique)
+	private GithubAuthModule(ServiceBuilderOAuth20 serviceBuilder)
 	{
-		super(serviceBuilder, unique);
+		super(serviceBuilder);
 	}
 	
 	/**
@@ -259,6 +258,6 @@ public class GithubAuthModule extends AuthModule
 	@Override
 	protected String getUserInfoEndPoint()
 	{
-		return "https://api.github.com/users/RWB0104";
+		return "https://api.github.com/user";
 	}
 }

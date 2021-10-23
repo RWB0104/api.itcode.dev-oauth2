@@ -12,7 +12,6 @@ import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.AccessTokenRequestParams;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import global.module.Util;
-import lombok.Getter;
 import oauth.account.bean.ApiKeyBean;
 import oauth.account.bean.UserInfoBean;
 
@@ -37,20 +36,14 @@ abstract public class AuthModule extends DefaultApi20
 {
 	protected OAuth20Service service;
 	
-	@Getter
-	protected String unique;
-	
 	/**
 	 * 생성자 메서드
 	 *
 	 * @param serviceBuilder: [ServiceBuilderOAuth20] API 서비스 빌더
-	 * @param unique: [String] 유니크 키
 	 */
-	protected AuthModule(ServiceBuilderOAuth20 serviceBuilder, String unique)
+	protected AuthModule(ServiceBuilderOAuth20 serviceBuilder)
 	{
 		service = serviceBuilder.build(this);
-		
-		this.unique = unique;
 	}
 	
 	abstract protected String getUserInfoEndPoint();

@@ -37,19 +37,18 @@ public class GoogleAuthModule extends AuthModule
 		CALLBACK_URL = apiKeyBean.getCallback();
 	}
 	
-	private static final ServiceBuilderOAuth20 SERVICE_BUILDER = new ServiceBuilder(API_KEY).apiSecret(SECRET_KEY).callback(CALLBACK_URL).defaultScope("https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile").debug();
+	private static final ServiceBuilderOAuth20 SERVICE_BUILDER = new ServiceBuilder(API_KEY).apiSecret(SECRET_KEY).callback(CALLBACK_URL).defaultScope("https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile");
 	
-	private static final GoogleAuthModule INSTANCE = new GoogleAuthModule(SERVICE_BUILDER, MODULE_NAME);
+	private static final GoogleAuthModule INSTANCE = new GoogleAuthModule(SERVICE_BUILDER);
 	
 	/**
 	 * 생성자 메서드
 	 *
 	 * @param serviceBuilder: [ServiceBuilderOAuth20] API 서비스 빌더
-	 * @param unique: [String] 유니크 값
 	 */
-	private GoogleAuthModule(ServiceBuilderOAuth20 serviceBuilder, String unique)
+	private GoogleAuthModule(ServiceBuilderOAuth20 serviceBuilder)
 	{
-		super(serviceBuilder, unique);
+		super(serviceBuilder);
 	}
 	
 	/**
@@ -150,6 +149,6 @@ public class GoogleAuthModule extends AuthModule
 	@Override
 	protected String getUserInfoEndPoint()
 	{
-		return "https://www.googleapis.com/oauth2/v2/userinfo";
+		return "https://www.googleapis.com/oauth2/v3/userinfo";
 	}
 }
