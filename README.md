@@ -80,4 +80,4 @@
 
 * [OAuth2.0 Frontend](https://github.com/RWB0104/oauth2)
 * [OAuth2.0 Backend API Wiki](https://github.com/RWB0104/api.itcode.dev-oauth2/wiki/OAuth2.0-Backend)
-* OAuth 개발기 추가 예정
+* [OAuth Project 개발기 1편 외 다수](https://blog.itcode.dev/posts/2021/10/14/oauth2-java-server-1)

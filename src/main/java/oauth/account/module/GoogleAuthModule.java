@@ -1,4 +1,4 @@
-package oauth.platform.module;
+package oauth.account.module;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -9,7 +9,6 @@ import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Verb;
 import oauth.account.bean.ApiKeyBean;
 import oauth.account.bean.UserInfoBean;
-import oauth.account.module.AuthModule;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;

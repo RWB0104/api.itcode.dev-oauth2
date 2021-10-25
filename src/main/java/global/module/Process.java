@@ -3,10 +3,10 @@ package global.module;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import oauth.account.module.AuthModule;
-import oauth.platform.module.GithubAuthModule;
-import oauth.platform.module.GoogleAuthModule;
-import oauth.platform.module.KakaoAuthModule;
-import oauth.platform.module.NaverAuthModule;
+import oauth.account.module.GithubAuthModule;
+import oauth.account.module.GoogleAuthModule;
+import oauth.account.module.KakaoAuthModule;
+import oauth.account.module.NaverAuthModule;
 
 /**
  * 프로세스 추상 클래스

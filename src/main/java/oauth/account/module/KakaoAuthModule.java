@@ -1,30 +1,31 @@
-package oauth.platform.module;
+package oauth.account.module;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.builder.ServiceBuilderOAuth20;
+import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.OAuthRequest;
-import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
+import com.github.scribejava.core.oauth.AccessTokenRequestParams;
+import global.module.Util;
 import oauth.account.bean.ApiKeyBean;
 import oauth.account.bean.UserInfoBean;
-import oauth.account.module.AuthModule;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Naver 인증 모듈 클래스
+ * 카카오 인증 모듈 클래스
  *
  * @author RWB
- * @since 2021.09.29 Wed 23:45:49
+ * @since 2021.10.04 Mon 21:30:49
  */
-public class NaverAuthModule extends AuthModule
+public class KakaoAuthModule extends AuthModule
 {
-	private static final String MODULE_NAME = "naver";
+	private static final String MODULE_NAME = "kakao";
 	
 	private static final String API_KEY;
 	private static final String SECRET_KEY;
@@ -41,14 +42,14 @@ public class NaverAuthModule extends AuthModule
 	
 	private static final ServiceBuilderOAuth20 SERVICE_BUILDER = new ServiceBuilder(API_KEY).apiSecret(SECRET_KEY).callback(CALLBACK_URL);
 	
-	private static final NaverAuthModule INSTANCE = new NaverAuthModule(SERVICE_BUILDER);
+	private static final KakaoAuthModule INSTANCE = new KakaoAuthModule(SERVICE_BUILDER);
 	
 	/**
 	 * 생성자 메서드
 	 *
 	 * @param serviceBuilder: [ServiceBuilderOAuth20] API 서비스 빌더
 	 */
-	private NaverAuthModule(ServiceBuilderOAuth20 serviceBuilder)
+	private KakaoAuthModule(ServiceBuilderOAuth20 serviceBuilder)
 	{
 		super(serviceBuilder);
 	}
@@ -56,11 +57,30 @@ public class NaverAuthModule extends AuthModule
 	/**
 	 * 인스턴스 반환 메서드
 	 *
-	 * @return [NaverAuthModule] 인스턴스
+	 * @return [KakaoAuthModule] 인스턴스
 	 */
-	public static NaverAuthModule getInstance()
+	public static KakaoAuthModule getInstance()
 	{
 		return INSTANCE;
+	}
+	
+	/**
+	 * 접근 토큰 반환 메서드
+	 *
+	 * @param code: [String] 인증 코드
+	 *
+	 * @return [OAuth2AccessToken] 접근 토큰
+	 *
+	 * @throws IOException 데이터 입출력 예외
+	 */
+	@Override
+	public OAuth2AccessToken getAccessToken(String code) throws IOException, ExecutionException, InterruptedException
+	{
+		AccessTokenRequestParams params = new AccessTokenRequestParams(code);
+		params.addExtraParameter("client_id", API_KEY);
+		params.addExtraParameter("client_secret", SECRET_KEY);
+		
+		return getAccessToken(params);
 	}
 	
 	/**
@@ -79,11 +99,11 @@ public class NaverAuthModule extends AuthModule
 		
 		JsonNode node = mapper.readTree(body);
 		
-		String email = node.get("response").get("email") == null ? "미동의" : node.get("response").get("email").textValue();
-		String name = node.get("response").get("name") == null ? "미동의" : node.get("response").get("name").textValue();
-		String profile_image = node.get("response").get("profile_image") == null ? "/oauth2/assets/images/logo.png" : node.get("response").get("profile_image").textValue();
+		String email = node.get("kakao_account").get("email") == null ? "미동의" : node.get("kakao_account").get("email").textValue();
+		String name = node.get("kakao_account").get("profile").get("nickname") == null ? "미동의" : node.get("kakao_account").get("profile").get("nickname").textValue();
+		String picture = node.get("kakao_account").get("profile").get("profile_image_url") == null ? "/oauth2/assets/images/logo.png" : node.get("kakao_account").get("profile").get("profile_image_url").textValue();
 		
-		return new UserInfoBean(email, name, profile_image, MODULE_NAME);
+		return new UserInfoBean(email, name, picture, MODULE_NAME);
 	}
 	
 	/**
@@ -100,18 +120,13 @@ public class NaverAuthModule extends AuthModule
 	@Override
 	public boolean deleteInfo(String access) throws IOException, ExecutionException, InterruptedException
 	{
-		OAuthRequest oAuthRequest = new OAuthRequest(Verb.GET, getAccessTokenEndpoint());
-		oAuthRequest.addQuerystringParameter("client_id", API_KEY);
-		oAuthRequest.addQuerystringParameter("client_secret", SECRET_KEY);
-		oAuthRequest.addQuerystringParameter("access_token", access);
-		oAuthRequest.addQuerystringParameter("grant_type", "delete");
-		oAuthRequest.addQuerystringParameter("service_provider", "NAVER");
+		OAuthRequest oAuthRequest = new OAuthRequest(Verb.POST, "https://kapi.kakao.com/v1/user/unlink");
+		oAuthRequest.addHeader("Content-Type", "application/x-www-form-urlencoded");
+		oAuthRequest.addHeader("Authorization", Util.builder("Bearer ", access));
 		
 		service.signRequest(access, oAuthRequest);
 		
-		Response response = service.execute(oAuthRequest);
-		
-		return response.isSuccessful();
+		return service.execute(oAuthRequest).isSuccessful();
 	}
 	
 	/**
@@ -126,7 +141,7 @@ public class NaverAuthModule extends AuthModule
 	{
 		HashMap<String, String> params = new HashMap<>();
 		params.put("state", state);
-		params.put("auth_type", "reprompt");
+		params.put("scope", "profile_nickname,profile_image,account_email");
 		
 		return service.getAuthorizationUrl(params);
 	}
@@ -139,7 +154,7 @@ public class NaverAuthModule extends AuthModule
 	@Override
 	public String getAccessTokenEndpoint()
 	{
-		return "https://nid.naver.com/oauth2.0/token";
+		return "https://kauth.kakao.com/oauth/token";
 	}
 	
 	/**
@@ -150,7 +165,7 @@ public class NaverAuthModule extends AuthModule
 	@Override
 	protected String getAuthorizationBaseUrl()
 	{
-		return "https://nid.naver.com/oauth2.0/authorize";
+		return "https://kauth.kakao.com/oauth/authorize";
 	}
 	
 	/**
@@ -161,6 +176,6 @@ public class NaverAuthModule extends AuthModule
 	@Override
 	protected String getUserInfoEndPoint()
 	{
-		return "https://openapi.naver.com/v1/nid/me";
+		return "https://kapi.kakao.com/v2/user/me";
 	}
 }
