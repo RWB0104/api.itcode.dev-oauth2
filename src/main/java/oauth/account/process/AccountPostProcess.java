@@ -20,7 +20,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * 계정 GET 프로세스 클래스
+ * 계정 POST 프로세스 클래스
  *
  * @author RWB
  * @since 2021.10.02 Sat 00:53:52
