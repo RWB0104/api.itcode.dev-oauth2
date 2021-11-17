@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * JWT 모듈 클래ㅐ스
+ * JWT 모듈 클래스
  *
  * @author RWB
  * @since 2021.10.02 Sat 01:30:06

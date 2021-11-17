@@ -192,8 +192,7 @@ abstract public class AuthModule extends DefaultApi20
 	 */
 	protected static ApiKeyBean getApiKeyBean(String platform)
 	{
-		ApiKeyBean apiKeyBean;
-		apiKeyBean = new ApiKeyBean();
+		ApiKeyBean apiKeyBean = new ApiKeyBean();
 		
 		// API 키 획득 시도
 		try

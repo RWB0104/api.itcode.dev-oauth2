@@ -18,17 +18,17 @@ public class Util
 	/**
 	 * 텍스트 빌더 결과 반환 메서드
 	 *
-	 * @param texts: [String[]] 문자열 가변 인수
+	 * @param objs: [Object[]] 객체 가변 인수
 	 *
 	 * @return [String] 빌더 결과 문자열
 	 */
-	public static String builder(String... texts)
+	public static String builder(Object... objs)
 	{
 		StringBuilder builder = new StringBuilder();
 		
-		for (String text : texts)
+		for (Object obj : objs)
 		{
-			builder.append(text);
+			builder.append(obj);
 		}
 		
 		return builder.toString();
