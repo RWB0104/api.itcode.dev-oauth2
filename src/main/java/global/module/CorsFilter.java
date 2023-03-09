@@ -28,7 +28,7 @@ public class CorsFilter implements ContainerResponseFilter
 		// origin이 유효하고, itcode.dev 계열의 URL일 경우
 		if (origin != null && origin.contains("itcode.dev"))
 		{
-			responseContext.getHeaders().add("Access-Control-Allow-Origin", "project.itcode.dev");
+			responseContext.getHeaders().add("Access-Control-Allow-Origin", origin);
 			responseContext.getHeaders().add("Access-Control-Allow-Credentials", "true");
 			responseContext.getHeaders().add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
 			responseContext.getHeaders().add("Access-Control-Allow-Headers", "Content-Type");
