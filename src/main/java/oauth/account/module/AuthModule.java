@@ -199,9 +199,9 @@ abstract public class AuthModule extends DefaultApi20
 		{
 			HashMap<String, String> map = Util.getProperties(platform);
 			
-			apiKeyBean.setApi(map.get("api"));
-			apiKeyBean.setSecret(map.get("secret"));
-			apiKeyBean.setCallback(map.get("callback"));
+			apiKeyBean.setApi(map.get("API"));
+			apiKeyBean.setSecret(map.get("SECRET"));
+			apiKeyBean.setCallback(map.get("CALLBACK"));
 		}
 		
 		// 예외
