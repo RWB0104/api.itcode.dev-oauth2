@@ -30,3 +30,6 @@ github.properties
 google.properties
 naver.properties
 kakao.properties
+
+.gradle/
+.idea/
