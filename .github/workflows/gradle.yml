@@ -35,10 +35,38 @@ jobs:
       - name: naver.properties 추가
         uses: SpicyPizza/create-envfile@v1.3
         with:
-          envkey_DEBUG: false
-          envkey_PORT: 3000
+          envkey_NAVER_API: ${{ secrets.NAVER_API }}
+          envkey_NAVER_SECRET: ${{ secrets.NAVER_SECRET }}
+          envkey_NAVER_CALLBACK: ${{ secrets.NAVER_CALLBACK }}
           directory: ./src/main/webapp/WEB-INF
           file_name: naver.properties
+
+      - name: google.properties 추가
+        uses: SpicyPizza/create-envfile@v1.3
+        with:
+          envkey_NAVER_API: ${{ secrets.GOOGLE_API }}
+          envkey_NAVER_SECRET: ${{ secrets.GOOGLE_SECRET }}
+          envkey_NAVER_CALLBACK: ${{ secrets.GOOGLE_CALLBACK }}
+          directory: ./src/main/webapp/WEB-INF
+          file_name: google.properties
+
+      - name: kakao.properties 추가
+        uses: SpicyPizza/create-envfile@v1.3
+        with:
+          envkey_NAVER_API: ${{ secrets.KAKAO_API }}
+          envkey_NAVER_SECRET: ${{ secrets.KAKAO_SECRET }}
+          envkey_NAVER_CALLBACK: ${{ secrets.KAKAO_CALLBACK }}
+          directory: ./src/main/webapp/WEB-INF
+          file_name: kakao.properties
+
+      - name: github.properties 추가
+        uses: SpicyPizza/create-envfile@v1.3
+        with:
+          envkey_NAVER_API: ${{ secrets.GH_API }}
+          envkey_NAVER_SECRET: ${{ secrets.GH_SECRET }}
+          envkey_NAVER_CALLBACK: ${{ secrets.GH_CALLBACK }}
+          directory: ./src/main/webapp/WEB-INF
+          file_name: github.properties
 
       - name: Gradle 빌드
         run: ./gradlew build
