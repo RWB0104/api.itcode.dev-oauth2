@@ -1,10 +1,10 @@
 plugins {
     id 'java'
     id 'war'
+    id 'net.researchgate.release' version '3.0.2'
 }
 
 group 'api.itcode.dev.oauth2'
-version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -19,10 +19,10 @@ dependencies {
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
 
     // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt
-    implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
+    implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.12.6'
 
     // https://mvnrepository.com/artifact/com.github.scribejava/scribejava-apis
-    implementation group: 'com.github.scribejava', name: 'scribejava-apis', version: '8.3.1'
+    implementation group: 'com.github.scribejava', name: 'scribejava-apis', version: '8.3.3'
 
     // https://mvnrepository.com/artifact/org.glassfish.jersey.core/jersey-server
     implementation group: 'org.glassfish.jersey.core', name: 'jersey-server', version: '3.0.3'
@@ -44,7 +44,7 @@ test {
     useJUnitPlatform()
 }
 
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
 
@@ -54,7 +54,8 @@ war {
     archiveFileName.set(warName)
 }
 
-task exploded(dependsOn: ':war') {
+tasks.register('exploded') {
+    dependsOn ':war'
     doLast {
         ant.unzip(src: 'build/libs/' + warName, dest: 'build/exploded')
     }
