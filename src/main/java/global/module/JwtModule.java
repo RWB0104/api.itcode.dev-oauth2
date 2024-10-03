@@ -5,6 +5,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -19,7 +20,7 @@ import java.util.Map;
  */
 public class JwtModule
 {
-	private static final String AES_KEY = "JWT-TEST-KEY";
+	private static final String AES_KEY = "c907e5e522151738bdbc0f0d0d21beec6d4c123b414cc309aa18602702ab40d0d8b30baf2e40c877f8bbeb061a90137981db0de5a8a20b6fb8bda762f9ad1811";
 	
 	/**
 	 * JWT 생성 및 반환 메서드
@@ -44,16 +45,16 @@ public class JwtModule
 		headerMap.put("typ", "JWT");
 		
 		return Jwts.builder()
-				.setHeader(headerMap)
-				.setIssuer("oauth2")
-				.setSubject("auth")
-				.setAudience(id)
-				.addClaims(claimsMap)
-				.setExpiration(expire)
-				.setNotBefore(now)
-				.setIssuedAt(now)
-				.setId(id)
-				.signWith(SignatureAlgorithm.HS256, Base64.encode(AES_KEY.getBytes()))
+				.header().add(headerMap).and()
+				.issuer("oauth2")
+				.subject("auth")
+				.audience().add(id).and()
+				.claims(claimsMap)
+				.expiration(expire)
+				.notBefore(now)
+				.issuedAt(now)
+				.id(id)
+				.signWith(Keys.hmacShaKeyFor(AES_KEY.getBytes()))
 				.compact();
 	}
 	
@@ -66,6 +67,9 @@ public class JwtModule
 	 */
 	public static Jws<Claims> openJwt(String jwt)
 	{
-		return Jwts.parser().setSigningKey(Base64.encode(AES_KEY.getBytes())).parseClaimsJws(jwt);
+		return Jwts.parser()
+				.verifyWith(Keys.hmacShaKeyFor(AES_KEY.getBytes()))
+				.build()
+				.parseSignedClaims(jwt);
 	}
 }
