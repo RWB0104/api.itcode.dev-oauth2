@@ -68,13 +68,12 @@ jobs:
         run: ./gradlew build
 
       - name: SSH 배포
-        uses: appleboy/scp-action@master
+        uses: RWB0104/sftp-deploy@main
         with:
-          username: ${{ secrets.USERNAME }}
+          private_key: ${{ secrets.PRIVATE_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
           host: ${{ secrets.HOST }}
           port: ${{ secrets.PORT }}
-          key: ${{ secrets.KEY }}
-          passphrase: ${{ secrets.PASSPHRASE }}
-          source: "./build/libs/oauth2.war"
-          target: ${{ secrets.TARGET }}
-          strip_components: 3
+          user: ${{ secrets.USERNAME }}
+          local_path: ./build/libs/oauth2.war
+          remote_path: ${{ secrets.TARGET }}
