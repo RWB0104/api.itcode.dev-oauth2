@@ -1,5 +1,6 @@
 package dev.itcode.oauth2.core.config;
 
+import dev.itcode.oauth2.core.env.EnvironmentProvider;
 import dev.itcode.oauth2.core.oauth2.OAuth2Customizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -12,7 +13,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
+import java.util.Arrays;
 
 /**
  * Spring Security 설정 클래스
@@ -26,6 +27,7 @@ import java.util.List;
 public class SpringSecurityConfig
 {
 	private final OAuth2Customizer oAuth2Customizer;
+	private final EnvironmentProvider environmentProvider;
 	
 	/**
 	 * 필터 체인 반환 메서드
@@ -47,13 +49,15 @@ public class SpringSecurityConfig
 	}
 	
 	/**
-	 * CORS 메서드
+	 * CORS 필터 반환 메서드
+	 *
+	 * @return (CorsWebFilter) CORS 필터
 	 */
 	@Bean
 	public CorsWebFilter corsWebFilter()
 	{
 		CorsConfiguration corsConfig = new CorsConfiguration();
-		corsConfig.setAllowedOrigins(List.of("https://itcode.dev", "https://project.itcode.dev"));
+		corsConfig.setAllowedOrigins(Arrays.stream(environmentProvider.getCorsOrigins()).toList());
 		corsConfig.setMaxAge(8000L);
 		corsConfig.addAllowedMethod("*");
 		

@@ -1,5 +1,6 @@
 package dev.itcode.oauth2.core.oauth2;
 
+import dev.itcode.oauth2.core.env.EnvironmentProvider;
 import dev.itcode.oauth2.core.token.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -9,6 +10,7 @@ import org.springframework.security.web.server.authentication.RedirectServerAuth
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuples;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -24,6 +26,7 @@ import java.util.HashMap;
 public class OAuth2SuccessHandler extends RedirectServerAuthenticationSuccessHandler
 {
 	private final TokenProvider tokenProvider;
+	private final EnvironmentProvider environmentProvider;
 	
 	/**
 	 * 인증 성공 메서드
@@ -51,10 +54,15 @@ public class OAuth2SuccessHandler extends RedirectServerAuthenticationSuccessHan
 					
 					return tokenProvider.publishAsync(id, map);
 				})
-				.flatMap(token ->
+				.flatMap(token -> environmentProvider.getFrontendUrlAsync()
+						.map(frontendUrl -> Tuples.of(token, frontendUrl)))
+				.flatMap(tuples ->
 				{
+					String token = tuples.getT1();
+					String frontendUrl = tuples.getT2();
+					
 					String redirectUrl = UriComponentsBuilder
-							.fromUriString("https://project.itcode.dev/oauth2/callback/google")
+							.fromUriString(frontendUrl + "/callback/google")
 							.queryParam("token", token)
 							.build()
 							.toUriString();
