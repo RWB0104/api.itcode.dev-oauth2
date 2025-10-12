@@ -1,9 +1,9 @@
 package dev.itcode.oauth2.core.filter;
 
-import dev.itcode.oauth2.core.env.EnvironmentProvider;
-import lombok.NonNull;
+import dev.itcode.oauth2.core.env.EnvDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
@@ -11,6 +11,8 @@ import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * 헤더 필터
@@ -22,7 +24,11 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class HeaderFilter implements WebFilter
 {
-	private final EnvironmentProvider environmentProvider;
+	private final EnvDto envDto;
+	
+	private final String[] whitelists = {
+			"/login/oauth2/code"
+	};
 	
 	/**
 	 * 필터 메서드
@@ -32,23 +38,48 @@ public class HeaderFilter implements WebFilter
 	 */
 	@Override
 	@NonNull
-	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain)
+	public Mono<Void> filter(@NonNull ServerWebExchange exchange, @NonNull WebFilterChain chain)
 	{
-		return Mono.justOrEmpty(exchange.getRequest().getHeaders().getFirst("Referer"))
-				.zipWith(environmentProvider.getCorsOriginsAsync())
-				.filter(tuple ->
+		String path = exchange.getRequest().getURI().getPath();
+		
+		// 화이트 리스트 대상일 경우, 필터 스킵
+		if (Arrays.stream(whitelists).anyMatch(path::startsWith))
+		{
+			return chain.filter(exchange);
+		}
+		
+		return Mono.fromCallable(() -> Objects.requireNonNull(exchange.getRequest().getHeaders().getFirst("Referer")))
+				.map(referer ->
 				{
-					String referer = tuple.getT1();
-					String[] allows = tuple.getT2();
+					List<String> allows = envDto.getCorsOrigins();
 					
-					return Arrays.stream(allows).anyMatch(referer::startsWith);
+					return allows.stream().anyMatch(referer::startsWith);
 				})
-				.then(chain.filter(exchange))
-				.switchIfEmpty(Mono.defer(() ->
+				.flatMap(hasValid ->
 				{
-					exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+					// 유효한 리퍼러일 경우
+					if (hasValid)
+					{
+						return chain.filter(exchange);
+					}
 					
-					return exchange.getResponse().setComplete();
-				}));
+					// 아닐 경우
+					else
+					{
+						return errorResponse(exchange);
+					}
+				})
+				.onErrorResume(_ -> errorResponse(exchange));
+	}
+	
+	/**
+	 * 에러 응답 메서드
+	 *
+	 * @param exchange (ServerWebExchange) ServerWebExchange 객체
+	 */
+	private Mono<Void> errorResponse(ServerWebExchange exchange)
+	{
+		exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+		return exchange.getResponse().setComplete();
 	}
 }
