@@ -16,7 +16,7 @@ public enum Profile
 	PRODUCTION("production");
 	
 	/**
-	 * 프로필 반환 메서드
+	 * 프로필
 	 */
 	private final String profile;
 	
