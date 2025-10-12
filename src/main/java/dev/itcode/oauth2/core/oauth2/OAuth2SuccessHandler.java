@@ -62,7 +62,7 @@ public class OAuth2SuccessHandler extends RedirectServerAuthenticationSuccessHan
 					String frontendUrl = envDto.getFrontendUrl();
 					
 					String redirectUrl = UriComponentsBuilder
-							.fromUriString(frontendUrl + "/callback/google")
+							.fromUriString(frontendUrl + "/callback")
 							.queryParam("token", token)
 							.build()
 							.toUriString();
