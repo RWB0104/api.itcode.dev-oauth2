@@ -1,6 +1,7 @@
 package dev.itcode.oauth2.api.me.module;
 
 import dev.itcode.oauth2.api.me.dto.MeDto;
+import dev.itcode.oauth2.core.oauth2.Platform;
 import dev.itcode.oauth2.core.token.TokenProvider;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -35,12 +36,12 @@ public class MeModule
 		Jws<Claims> jws = tokenProvider.decrypt(token);
 		Claims claims = jws.getPayload();
 		
+		String platform = claims.get("platform", String.class);
 		String name = claims.get("name", String.class);
 		String email = claims.get("email", String.class);
 		String picture = claims.get("picture", String.class);
 		
-		return new MeDto(name, email, picture);
-		
+		return new MeDto(Platform.valueOf(platform.toUpperCase()), name, email, picture);
 	}
 	
 	/**

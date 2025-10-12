@@ -30,7 +30,7 @@ public class MeGetService
 	 */
 	public Mono<ApiResponseDto<MeDto>> getMe(String authorization)
 	{
-		return Mono.just(module.getMeModule(authorization))
+		return Mono.fromCallable(() -> module.getMeModule(authorization))
 				.map(dto -> ApiResponseDto.<MeDto>builder()
 						.uuid(UUID.randomUUID().toString())
 						.path("/api/me")

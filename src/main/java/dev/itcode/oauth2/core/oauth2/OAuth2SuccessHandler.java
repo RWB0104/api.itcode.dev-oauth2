@@ -4,6 +4,7 @@ import dev.itcode.oauth2.core.env.EnvDto;
 import dev.itcode.oauth2.core.token.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
@@ -43,8 +44,11 @@ public class OAuth2SuccessHandler extends RedirectServerAuthenticationSuccessHan
 				.cast(DefaultOAuth2User.class)
 				.map(defaultOAuth2User ->
 				{
+					OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+					
 					HashMap<String, Object> map = new HashMap<>();
 					
+					map.put("platform", oauthToken.getAuthorizedClientRegistrationId());
 					map.put("email", defaultOAuth2User.getAttributes().get("email"));
 					map.put("name", defaultOAuth2User.getAttributes().get("name"));
 					map.put("picture", defaultOAuth2User.getAttributes().get("picture"));
