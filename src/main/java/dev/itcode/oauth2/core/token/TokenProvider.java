@@ -1,12 +1,14 @@
 package dev.itcode.oauth2.core.token;
 
 import dev.itcode.oauth2.core.env.EnvironmentProvider;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Mono;
 
+import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
@@ -74,24 +76,39 @@ public class TokenProvider
 	}
 	
 	/**
-	 * JWT 발급 비동기 메서드
+	 * JWT 발급 메서드
 	 *
 	 * @param id (String) 아이디
-	 * @param clams (Map) 내용
+	 * @param claims (Map) 내용
 	 *
-	 * @return (Mono) JWT
+	 * @return (String) JWT
 	 */
-	public Mono<String> publishAsync(String id, Map<String, ?> clams)
+	public String publish(String id, Map<String, ?> claims)
 	{
-		return environmentProvider.getProfilesAsync()
-				.map(profiles -> String.join("-", profiles))
-				.map(profile -> Jwts.builder()
-						.subject(id)
-						.issuer("api.itcode.dev-oauth2-" + profile)
-						.issuedAt(new Date())
-						.expiration(new Date(System.currentTimeMillis() + 3600_000))
-						.claims(clams)
-						.signWith(key)
-						.compact());
+		String profile = String.join("-", environmentProvider.getProfiles());
+		
+		return Jwts.builder()
+				.subject(id)
+				.issuer("api.itcode.dev-oauth2-" + profile)
+				.issuedAt(new Date())
+				.expiration(new Date(System.currentTimeMillis() + 3600_000))
+				.claims(claims)
+				.signWith(key)
+				.compact();
+	}
+	
+	/**
+	 * 복호화 메서드
+	 *
+	 * @param token (String) 토큰
+	 *
+	 * @return (Jws) Claims
+	 */
+	public Jws<Claims> decrypt(String token)
+	{
+		return Jwts.parser()
+				.verifyWith((SecretKey) key)
+				.build()
+				.parseSignedClaims(token);
 	}
 }
