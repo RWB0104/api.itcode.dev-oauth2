@@ -18,7 +18,6 @@ import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 인증 필터 클래스
@@ -42,9 +41,17 @@ public class AuthorizationFilter implements WebFilter
 	@NonNull
 	public Mono<Void> filter(@NonNull ServerWebExchange exchange, @NonNull WebFilterChain chain)
 	{
-		return Mono.fromCallable(() -> Objects.requireNonNull(exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION)))
-				.filter(authorization -> authorization.startsWith("Bearer "))
-				.map(authorization -> authorization.replaceFirst("^Bearer ", ""))
+		String authorization = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+		
+		// 인증 헤더가 유효하지 않을 경우
+		if (authorization == null)
+		{
+			return errorResponse(exchange);
+		}
+		
+		return Mono.just(authorization)
+				.filter(auth -> auth.startsWith("Bearer "))
+				.map(auth -> auth.replaceFirst("^Bearer ", ""))
 				.flatMap(token ->
 						Mono.fromCallable(() -> tokenProvider.decrypt(token))
 								.flatMap(claims ->
@@ -59,11 +66,17 @@ public class AuthorizationFilter implements WebFilter
 									return chain.filter(exchange)
 											.contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(context)));
 								})
-				)
-				.onErrorResume((_) ->
-				{
-					exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-					return exchange.getResponse().setComplete();
-				});
+				);
+	}
+	
+	/**
+	 * 에러 응답 메서드
+	 *
+	 * @param exchange (ServerWebExchange) ServerWebExchange 객체
+	 */
+	private Mono<Void> errorResponse(ServerWebExchange exchange)
+	{
+		exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+		return exchange.getResponse().setComplete();
 	}
 }

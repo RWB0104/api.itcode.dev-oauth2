@@ -12,7 +12,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 헤더 필터
@@ -48,12 +47,20 @@ public class HeaderFilter implements WebFilter
 			return chain.filter(exchange);
 		}
 		
-		return Mono.fromCallable(() -> Objects.requireNonNull(exchange.getRequest().getHeaders().getFirst("Referer")))
-				.map(referer ->
+		String referer = exchange.getRequest().getHeaders().getFirst("Referer");
+		
+		// 리퍼러가 없을 경우
+		if (referer == null)
+		{
+			return errorResponse(exchange);
+		}
+		
+		return Mono.just(referer)
+				.map(ref ->
 				{
 					List<String> allows = envDto.getCorsOrigins();
 					
-					return allows.stream().anyMatch(referer::startsWith);
+					return allows.stream().anyMatch(ref::startsWith);
 				})
 				.flatMap(hasValid ->
 				{
@@ -68,8 +75,7 @@ public class HeaderFilter implements WebFilter
 					{
 						return errorResponse(exchange);
 					}
-				})
-				.onErrorResume(_ -> errorResponse(exchange));
+				});
 	}
 	
 	/**
