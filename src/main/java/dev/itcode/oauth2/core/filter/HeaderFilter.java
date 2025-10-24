@@ -26,7 +26,8 @@ public class HeaderFilter implements WebFilter
 	private final EnvDto envDto;
 	
 	private final String[] whitelists = {
-			"/login/oauth2/code"
+			"/login/oauth2/code",
+			"/docs"
 	};
 	
 	/**
@@ -40,9 +41,16 @@ public class HeaderFilter implements WebFilter
 	public Mono<Void> filter(@NonNull ServerWebExchange exchange, @NonNull WebFilterChain chain)
 	{
 		String path = exchange.getRequest().getURI().getPath();
+		String host = exchange.getRequest().getHeaders().getFirst("Host");
 		
 		// 화이트 리스트 대상일 경우, 필터 스킵
 		if (Arrays.stream(whitelists).anyMatch(path::startsWith))
+		{
+			return chain.filter(exchange);
+		}
+		
+		// 자기 자신일 경우, 마찬가지로 스킵
+		else if (host != null && host.equals("localhost:8080"))
 		{
 			return chain.filter(exchange);
 		}

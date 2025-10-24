@@ -17,6 +17,7 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -31,6 +32,10 @@ public class AuthorizationFilter implements WebFilter
 {
 	private final TokenProvider tokenProvider;
 	
+	private final String[] whitelists = {
+			"/docs"
+	};
+	
 	/**
 	 * 필터 메서드
 	 *
@@ -41,6 +46,14 @@ public class AuthorizationFilter implements WebFilter
 	@NonNull
 	public Mono<Void> filter(@NonNull ServerWebExchange exchange, @NonNull WebFilterChain chain)
 	{
+		String path = exchange.getRequest().getURI().getPath();
+		
+		// 화이트 리스트 대상일 경우, 필터 스킵
+		if (Arrays.stream(whitelists).anyMatch(path::startsWith))
+		{
+			return chain.filter(exchange);
+		}
+		
 		String authorization = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 		
 		// 인증 헤더가 유효하지 않을 경우
