@@ -1,4 +1,4 @@
-package dev.itcode.oauth2.core.env;
+package dev.itcode.oauth2.core.enums;
 
 import lombok.Getter;
 
