@@ -3,8 +3,8 @@ plugins {
     id 'org.springframework.boot' version '3.5.5'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'org.graalvm.buildtools.native' version '0.10.6'
-    id 'org.asciidoctor.jvm.convert' version '4.0.5'
     id 'jacoco'
+    id 'com.epages.restdocs-api-spec' version '0.19.4'
 }
 
 group = 'dev.itcode'
@@ -37,7 +37,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    // developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
@@ -48,17 +47,23 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.13.0'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.13.0'
+
+    testImplementation 'com.epages:restdocs-api-spec:0.19.4'
+    testImplementation 'com.epages:restdocs-api-spec-webtestclient:0.19.4'
 }
 
-tasks.named('test', Test) {
+openapi3 {
+    setServer("http://localhost:8080")
+    title = "api.itcode.dev OAuth2 API"
+    description = "Spring REST Docs with SwaggerUI."
+    version = "0.0.1"
+    format = "yaml"
+}
+
+test {
     outputs.dir snippetsDir
     useJUnitPlatform()
     finalizedBy jacocoTestReport, jacocoTestCoverageVerification
-}
-
-tasks.named('asciidoctor') {
-    inputs.dir snippetsDir
-    dependsOn test
 }
 
 jacocoTestReport {
@@ -79,11 +84,24 @@ jacocoTestCoverageVerification {
                 value = 'COVEREDRATIO'
                 minimum = 0
             }
-            
+
             excludes = [
                     '**/generated/**',
                     '**/testutils/**'
             ]
+        }
+    }
+}
+
+afterEvaluate {
+    tasks.named("openapi3") {
+        doLast {
+            ant.move(
+                    file: "build/api-spec/openapi3.yaml",
+                    todir: "src/main/resources/static/docs"
+            )
+
+            println "✅ OAS Specification asset has moved"
         }
     }
 }
