@@ -27,5 +27,5 @@ public class EnvDto
 	/**
 	 * CORS 허용 도메인
 	 */
-	private List<String> corsOrigins;
+	private List<String> corsOrigins = List.of();
 }

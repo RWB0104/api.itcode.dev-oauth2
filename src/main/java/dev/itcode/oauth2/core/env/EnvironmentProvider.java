@@ -1,5 +1,6 @@
 package dev.itcode.oauth2.core.env;
 
+import dev.itcode.oauth2.core.enums.Profile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
