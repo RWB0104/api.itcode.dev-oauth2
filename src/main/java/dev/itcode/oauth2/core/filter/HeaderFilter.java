@@ -67,6 +67,7 @@ public class HeaderFilter implements WebFilter
 				.map(ref ->
 				{
 					List<String> allows = envDto.getCorsOrigins();
+					allows.add(envDto.getFrontendUrl());
 					
 					return allows.stream().anyMatch(ref::startsWith);
 				})
