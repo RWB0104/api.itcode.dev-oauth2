@@ -28,7 +28,7 @@ public class MeGetServiceMock implements IMeGetService
 	@Override
 	public Mono<ApiResponseDto<MeDto>> getMe(String authorization)
 	{
-		return Mono.just(new MeDto(Platform.GOOGLE, "홍길동", "user@example.com", "https://s"))
+		return Mono.just(new MeDto(Platform.GOOGLE, "홍길동", "user@example.com", "https://placehold.co/64"))
 				.map(meDto -> ApiResponseDto.<MeDto>builder()
 						.uuid(UUID.randomUUID().toString())
 						.body(meDto)
