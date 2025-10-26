@@ -10,14 +10,14 @@ import reactor.core.publisher.Mono;
 import java.util.UUID;
 
 /**
- * 내 정보 Get 서비스
+ * 내 정보 GET 서비스
  *
  * @author RWB
  * @since 2025.10.06 Mon 11:49:09
  */
 @Component
 @RequiredArgsConstructor
-public class MeGetService
+public class MeGetService implements IMeGetService
 {
 	private final MeModule module;
 	
@@ -28,6 +28,7 @@ public class MeGetService
 	 *
 	 * @return (Mono) 내 정보 응답 객체
 	 */
+	@Override
 	public Mono<ApiResponseDto<MeDto>> getMe(String authorization)
 	{
 		return Mono.fromCallable(() -> module.getMeModule(authorization))

@@ -2,7 +2,7 @@ package dev.itcode.oauth2.api.me.controller;
 
 import dev.itcode.oauth2.api.base.dto.ApiResponseDto;
 import dev.itcode.oauth2.api.me.dto.MeDto;
-import dev.itcode.oauth2.api.me.service.MeGetService;
+import dev.itcode.oauth2.api.me.service.IMeGetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +23,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class MeGetController
 {
-	private final MeGetService service;
+	private final IMeGetService service;
 	
 	/**
 	 * 내 정보 API 메서드

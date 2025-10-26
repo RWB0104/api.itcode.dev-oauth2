@@ -1,6 +1,6 @@
 package dev.itcode.oauth2.core.filter;
 
-import dev.itcode.oauth2.core.token.TokenProvider;
+import dev.itcode.oauth2.core.token.ITokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -30,7 +30,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuthorizationFilter implements WebFilter
 {
-	private final TokenProvider tokenProvider;
+	private final ITokenProvider tokenProvider;
 	
 	private final String[] whitelists = {
 			"/docs"

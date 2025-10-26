@@ -1,7 +1,7 @@
 package dev.itcode.oauth2.core.oauth2;
 
 import dev.itcode.oauth2.core.env.EnvDto;
-import dev.itcode.oauth2.core.token.TokenProvider;
+import dev.itcode.oauth2.core.token.ITokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -25,7 +25,7 @@ import java.util.HashMap;
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler extends RedirectServerAuthenticationSuccessHandler
 {
-	private final TokenProvider tokenProvider;
+	private final ITokenProvider tokenProvider;
 	private final EnvDto envDto;
 	
 	/**

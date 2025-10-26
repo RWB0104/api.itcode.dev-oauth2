@@ -2,7 +2,7 @@ package dev.itcode.oauth2.api.me.module;
 
 import dev.itcode.oauth2.api.me.dto.MeDto;
 import dev.itcode.oauth2.core.oauth2.Platform;
-import dev.itcode.oauth2.core.token.TokenProvider;
+import dev.itcode.oauth2.core.token.ITokenProvider;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MeModule
 {
-	private final TokenProvider tokenProvider;
+	private final ITokenProvider tokenProvider;
 	
 	/**
 	 * 내 정보 반환 모듈 메서드

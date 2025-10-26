@@ -22,7 +22,7 @@ import java.util.UUID;
  * @since 2025.09.12 Fri 19:12:14
  */
 @Component
-public class TokenProvider
+public class TokenProvider implements ITokenProvider
 {
 	private final Key key;
 	private final EnvironmentProvider environmentProvider;
@@ -83,6 +83,7 @@ public class TokenProvider
 	 *
 	 * @return (String) JWT
 	 */
+	@Override
 	public String publish(String id, Map<String, ?> claims)
 	{
 		String profile = String.join("-", environmentProvider.getProfiles());
@@ -104,6 +105,7 @@ public class TokenProvider
 	 *
 	 * @return (Jws) Claims
 	 */
+	@Override
 	public Jws<Claims> decrypt(String token)
 	{
 		return Jwts.parser()
