@@ -39,4 +39,35 @@ public class MeGetService implements IMeGetService
 						.build());
 		
 	}
+	
+	/**
+	 * 유효성 결과 응답 반환 비동기 메서드
+	 *
+	 * @param authorization (String) 인증 헤더
+	 *
+	 * @return (Mono) 유효성 결과 응답 객체
+	 */
+	@Override
+	public Mono<ApiResponseDto<Boolean>> getMeValidate(String authorization)
+	{
+		return Mono.fromCallable(() ->
+				{
+					try
+					{
+						module.getMeModule(authorization);
+						
+						return true;
+					}
+					
+					catch (Exception _)
+					{
+						return false;
+					}
+				})
+				.map(is -> ApiResponseDto.<Boolean>builder()
+						.uuid(UUID.randomUUID().toString())
+						.path("/api/me/validate")
+						.body(is)
+						.build());
+	}
 }

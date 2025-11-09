@@ -20,4 +20,13 @@ public interface IMeGetService
 	 * @return (Mono) 내 정보 응답 객체
 	 */
 	Mono<ApiResponseDto<MeDto>> getMe(String authorization);
+	
+	/**
+	 * 유효성 결과 응답 반환 비동기 메서드
+	 *
+	 * @param authorization (String) 인증 헤더
+	 *
+	 * @return (Mono) 유효성 결과 응답 객체
+	 */
+	Mono<ApiResponseDto<Boolean>> getMeValidate(String authorization);
 }

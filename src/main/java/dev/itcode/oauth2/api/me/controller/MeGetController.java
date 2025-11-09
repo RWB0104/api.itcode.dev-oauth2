@@ -37,4 +37,17 @@ public class MeGetController
 	{
 		return service.getMe(authorization);
 	}
+	
+	/**
+	 * 유효성 결과 API 메서드
+	 *
+	 * @param authorization (String) 응답 헤더
+	 *
+	 * @return (Mono) 유효성 결과 API
+	 */
+	@GetMapping("/validate")
+	public Mono<ApiResponseDto<Boolean>> getMeValidateApi(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization)
+	{
+		return service.getMeValidate(authorization);
+	}
 }
