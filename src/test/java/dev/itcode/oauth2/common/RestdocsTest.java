@@ -59,6 +59,8 @@ public class RestdocsTest
 	@Autowired
 	protected WebTestClient webTestClient;
 	
+	protected String referer = "http://localhost:3000";
+	
 	/**
 	 * 생성자 메서드
 	 */
@@ -92,13 +94,35 @@ public class RestdocsTest
 	/**
 	 * API용 FieldDescriptor 배열 반환 메서드
 	 *
+	 * @return (FieldDescriptor[]) FieldDescriptor 배열
+	 */
+	protected FieldDescriptor[] apiFieldWithPaths(Object bodyType)
+	{
+		return apiFieldWithPaths(bodyType, new FieldDescriptor[] {});
+	}
+	
+	/**
+	 * API용 FieldDescriptor 배열 반환 메서드
+	 *
 	 * @param additional (FieldDescriptor...) 추가 FieldDescriptor
 	 *
 	 * @return (FieldDescriptor[]) FieldDescriptor 배열
 	 */
-	protected FieldDescriptor[] apiFieldWithPaths(FieldDescriptor... additional)
+	protected FieldDescriptor[] apiFieldWithPaths(Object bodyType, FieldDescriptor... additional)
 	{
-		return Stream.concat(Arrays.stream(apiDescriptor), Arrays.stream(additional)).toArray(FieldDescriptor[]::new);
+		FieldDescriptor[] bodyDescriptor = new FieldDescriptor[] {
+				fieldWithPath("body").type(bodyType).description("바디")
+		};
+		
+		Stream<FieldDescriptor> stream = Stream.concat(Arrays.stream(apiDescriptor), Arrays.stream(bodyDescriptor));
+		
+		// 배열 내용이 없을 경우
+		if (additional.length == 0)
+		{
+			return stream.toArray(FieldDescriptor[]::new);
+		}
+		
+		return Stream.concat(stream, Arrays.stream(additional)).toArray(FieldDescriptor[]::new);
 	}
 	
 	/**

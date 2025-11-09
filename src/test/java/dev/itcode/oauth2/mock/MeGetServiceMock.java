@@ -35,4 +35,22 @@ public class MeGetServiceMock implements IMeGetService
 						.path("/api/me")
 						.build());
 	}
+	
+	/**
+	 * 유효성 결과 응답 반환 비동기 메서드
+	 *
+	 * @param authorization (String) 인증 헤더
+	 *
+	 * @return (Mono) 유효성 결과 응답 객체
+	 */
+	@Override
+	public Mono<ApiResponseDto<Boolean>> getMeValidate(String authorization)
+	{
+		return Mono.just(Math.random() > 0.5)
+				.map(is -> ApiResponseDto.<Boolean>builder()
+						.uuid(UUID.randomUUID().toString())
+						.body(is)
+						.path("/api/me")
+						.build());
+	}
 }
