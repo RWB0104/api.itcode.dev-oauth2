@@ -72,7 +72,7 @@ public class SpringSecurityConfig
 		corsConfig.setMaxAge(8000L);
 		corsConfig.addAllowedHeader("*");
 		corsConfig.addAllowedMethod("*");
-		corsConfig.addAllowedOrigin(envDto.getFrontendUrl());
+		corsConfig.addAllowedOrigin(envDto.getFrontendOrigin());
 		
 		envDto.getCorsOrigins().forEach(corsConfig::addAllowedOrigin);
 		

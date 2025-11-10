@@ -5,6 +5,7 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,4 +30,25 @@ public class EnvDto
 	 * CORS 허용 도메인
 	 */
 	private List<String> corsOrigins = new ArrayList<>();
+	
+	/**
+	 * 프론트엔드 Origin 반환 메서드
+	 *
+	 * @return [String] 프론트엔드 Origin
+	 */
+	public String getFrontendOrigin()
+	{
+		// 프론트엔드 URL이 없을 경우 그냥 반환
+		if (frontendUrl == null)
+		{
+			return null;
+		}
+		
+		URI uri = URI.create(frontendUrl);
+		
+		String schema = uri.getScheme();
+		String host = uri.getAuthority();
+		
+		return schema + "://" + host;
+	}
 }
